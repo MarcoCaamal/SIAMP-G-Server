@@ -9,7 +9,7 @@ import { LoginDto } from '../../application/dto/login.dto';
 import { RefreshTokenDto } from '../../application/dto/refresh-token.dto';
 import { VerifyEmailDto } from '../../application/dto/verify-email.dto';
 
-@Controller('auth')
+@Controller('api/auth')
 export class AuthController {
   constructor(
     private readonly registerUseCase: RegisterUseCase,
