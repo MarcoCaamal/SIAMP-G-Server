@@ -1,7 +1,17 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { IJwtService, JWT_SERVICE, TokenPair } from '../interfaces/jwt.service.interface';
-import { IRefreshTokenRepository, REFRESH_TOKEN_REPOSITORY } from '../../domain/repositories/refresh-token.repository.interface';
-import { IAuthRepository, AUTH_REPOSITORY } from '../../domain/repositories/auth.repository.interface';
+import {
+  IJwtService,
+  JWT_SERVICE,
+  TokenPair,
+} from '../interfaces/jwt.service.interface';
+import {
+  IRefreshTokenRepository,
+  REFRESH_TOKEN_REPOSITORY,
+} from '../../domain/repositories/refresh-token.repository.interface';
+import {
+  IAuthRepository,
+  AUTH_REPOSITORY,
+} from '../../domain/repositories/auth.repository.interface';
 import { RefreshTokenDto } from '../dto/refresh-token.dto';
 import { RefreshToken } from '../../domain/entities/refresh-token.entity';
 
@@ -13,12 +23,14 @@ export class RefreshTokenUseCase {
     @Inject(REFRESH_TOKEN_REPOSITORY)
     private readonly refreshTokenRepository: IRefreshTokenRepository,
     @Inject(AUTH_REPOSITORY)
-    private readonly authRepository: IAuthRepository
+    private readonly authRepository: IAuthRepository,
   ) {}
 
   async execute(refreshTokenDto: RefreshTokenDto): Promise<TokenPair> {
     // Find refresh token
-    const refreshToken = await this.refreshTokenRepository.findByToken(refreshTokenDto.refreshToken);
+    const refreshToken = await this.refreshTokenRepository.findByToken(
+      refreshTokenDto.refreshToken,
+    );
     if (!refreshToken || !refreshToken.isValid()) {
       throw new Error('Invalid or expired refresh token');
     }
@@ -26,10 +38,9 @@ export class RefreshTokenUseCase {
     // Verify the JWT refresh token
     try {
       await this.jwtService.verifyRefreshToken(refreshTokenDto.refreshToken);
-    } catch (error) {
-      // Revoke the refresh token if JWT verification fails
+    } catch (error: unknown) {
       await this.refreshTokenRepository.revoke(refreshTokenDto.refreshToken);
-      throw new Error('Invalid refresh token');
+      throw new Error((error as Error).message || 'Invalid refresh token');
     }
 
     // Get user details
@@ -42,7 +53,7 @@ export class RefreshTokenUseCase {
     // Generate new tokens
     const payload = {
       sub: user.id,
-      email: user.email
+      email: user.email,
     };
 
     const tokens = await this.jwtService.generateTokens(payload);
@@ -54,7 +65,7 @@ export class RefreshTokenUseCase {
     const newRefreshToken = RefreshToken.create(
       user.id,
       tokens.refreshToken,
-      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
     );
     await this.refreshTokenRepository.save(newRefreshToken);
 

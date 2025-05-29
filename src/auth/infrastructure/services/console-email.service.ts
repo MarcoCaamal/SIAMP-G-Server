@@ -4,6 +4,7 @@ import { IEmailService } from '../../application/interfaces/email.service.interf
 @Injectable()
 export class ConsoleEmailService implements IEmailService {
   async sendVerificationEmail(email: string, token: string): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate async operation
     console.log(`
     📧 Verification Email
     To: ${email}
@@ -17,6 +18,7 @@ export class ConsoleEmailService implements IEmailService {
   }
 
   async sendPasswordResetEmail(email: string, token: string): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate async operation
     console.log(`
     📧 Password Reset Email
     To: ${email}
@@ -30,6 +32,7 @@ export class ConsoleEmailService implements IEmailService {
   }
 
   async sendWelcomeEmail(email: string, name: string): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate async operation
     console.log(`
     📧 Welcome Email
     To: ${email}

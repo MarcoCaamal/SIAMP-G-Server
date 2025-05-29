@@ -1,11 +1,23 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { IAuthRepository, AUTH_REPOSITORY } from '../../domain/repositories/auth.repository.interface';
-import { IHashingService, HASHING_SERVICE } from '../interfaces/hashing.service.interface';
-import { IJwtService, JWT_SERVICE, TokenPair } from '../interfaces/jwt.service.interface';
-import { IRefreshTokenRepository, REFRESH_TOKEN_REPOSITORY } from '../../domain/repositories/refresh-token.repository.interface';
+import {
+  IAuthRepository,
+  AUTH_REPOSITORY,
+} from '../../domain/repositories/auth.repository.interface';
+import {
+  IHashingService,
+  HASHING_SERVICE,
+} from '../interfaces/hashing.service.interface';
+import {
+  IJwtService,
+  JWT_SERVICE,
+  TokenPair,
+} from '../interfaces/jwt.service.interface';
+import {
+  IRefreshTokenRepository,
+  REFRESH_TOKEN_REPOSITORY,
+} from '../../domain/repositories/refresh-token.repository.interface';
 import { LoginDto } from '../dto/login.dto';
 import { RefreshToken } from '../../domain/entities/refresh-token.entity';
-import * as crypto from 'crypto';
 
 @Injectable()
 export class LoginUseCase {
@@ -17,14 +29,18 @@ export class LoginUseCase {
     @Inject(JWT_SERVICE)
     private readonly jwtService: IJwtService,
     @Inject(REFRESH_TOKEN_REPOSITORY)
-    private readonly refreshTokenRepository: IRefreshTokenRepository
+    private readonly refreshTokenRepository: IRefreshTokenRepository,
   ) {}
 
   async execute(
     loginDto: LoginDto,
     ipAddress: string,
-    userAgent: string
-  ): Promise<TokenPair & { user: { id: string; name: string; email: string; status: string } }> {
+    userAgent: string,
+  ): Promise<
+    TokenPair & {
+      user: { id: string; name: string; email: string; status: string };
+    }
+  > {
     // Find user by email
     const user = await this.authRepository.findUserByEmail(loginDto.email);
     if (!user) {
@@ -37,17 +53,24 @@ export class LoginUseCase {
         throw new Error('Account is blocked. Please contact support.');
       }
       if (user.failedLoginAttempts >= 5) {
-        throw new Error('Account temporarily locked due to too many failed login attempts.');
+        throw new Error(
+          'Account temporarily locked due to too many failed login attempts.',
+        );
       }
     }
 
     // Verify password
-    const isPasswordValid = await this.hashingService.compare(loginDto.password, user.password);
+    const isPasswordValid = await this.hashingService.compare(
+      loginDto.password,
+      user.password,
+    );
     if (!isPasswordValid) {
       // Increment failed login attempts
-      const updatedUser = user.updateLoginAttempts(user.failedLoginAttempts + 1);
+      const updatedUser = user.updateLoginAttempts(
+        user.failedLoginAttempts + 1,
+      );
       await this.authRepository.updateUser(updatedUser);
-      
+
       throw new Error('Invalid credentials');
     }
 
@@ -63,7 +86,7 @@ export class LoginUseCase {
     // Generate JWT tokens
     const payload = {
       sub: user.id,
-      email: user.email
+      email: user.email,
     };
 
     const tokens = await this.jwtService.generateTokens(payload);
@@ -72,7 +95,7 @@ export class LoginUseCase {
     const refreshTokenEntity = RefreshToken.create(
       user.id,
       tokens.refreshToken,
-      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
     );
     await this.refreshTokenRepository.save(refreshTokenEntity);
 
@@ -82,8 +105,8 @@ export class LoginUseCase {
         id: user.id,
         name: user.name,
         email: user.email,
-        status: user.status
-      }
+        status: user.status,
+      },
     };
   }
 }

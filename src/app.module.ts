@@ -11,9 +11,11 @@ import { UsersModule } from './users/users.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    MongooseModule.forRoot(process.env.MONGODB_URI || 'mongodb://localhost:27017/siamp-auth'),
+    MongooseModule.forRoot(
+      process.env.MONGODB_URI || 'mongodb://localhost:27017/siamp-auth',
+    ),
     AuthModule,
-    UsersModule
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

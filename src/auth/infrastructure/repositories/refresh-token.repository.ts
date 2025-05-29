@@ -9,65 +9,70 @@ import { RefreshTokenDocument } from '../schemas/refresh-token.schema';
 export class RefreshTokenRepository implements IRefreshTokenRepository {
   constructor(
     @InjectModel(RefreshTokenDocument.name)
-    private readonly refreshTokenModel: Model<RefreshTokenDocument>
+    private readonly refreshTokenModel: Model<RefreshTokenDocument>,
   ) {}
 
   async save(refreshToken: RefreshToken): Promise<RefreshToken> {
-    const refreshTokenDoc = new this.refreshTokenModel(this.toPersistence(refreshToken));
+    const refreshTokenDoc = new this.refreshTokenModel(
+      this.toPersistence(refreshToken),
+    );
     const savedDoc = await refreshTokenDoc.save();
     return this.toDomain(savedDoc);
   }
 
   async findByToken(token: string): Promise<RefreshToken | null> {
-    const refreshTokenDoc = await this.refreshTokenModel.findOne({ token }).exec();
+    const refreshTokenDoc = await this.refreshTokenModel
+      .findOne({ token })
+      .exec();
     return refreshTokenDoc ? this.toDomain(refreshTokenDoc) : null;
   }
 
   async findByUserId(userId: string): Promise<RefreshToken[]> {
-    const refreshTokenDocs = await this.refreshTokenModel.find({ userId }).exec();
-    return refreshTokenDocs.map(doc => this.toDomain(doc));
+    const refreshTokenDocs = await this.refreshTokenModel
+      .find({ userId })
+      .exec();
+    return refreshTokenDocs.map((doc) => this.toDomain(doc));
   }
 
   async revoke(token: string): Promise<void> {
-    await this.refreshTokenModel.updateOne(
-      { token },
-      { isRevoked: true }
-    ).exec();
+    await this.refreshTokenModel
+      .updateOne({ token }, { isRevoked: true })
+      .exec();
   }
 
   async revokeAllForUser(userId: string): Promise<void> {
-    await this.refreshTokenModel.updateMany(
-      { userId },
-      { isRevoked: true }
-    ).exec();
+    await this.refreshTokenModel
+      .updateMany({ userId }, { isRevoked: true })
+      .exec();
   }
 
   async deleteExpired(): Promise<void> {
-    await this.refreshTokenModel.deleteMany({
-      $or: [
-        { expiresAt: { $lt: new Date() } },
-        { isRevoked: true }
-      ]
-    }).exec();
+    await this.refreshTokenModel
+      .deleteMany({
+        $or: [{ expiresAt: { $lt: new Date() } }, { isRevoked: true }],
+      })
+      .exec();
   }
 
   private toDomain(refreshTokenDoc: RefreshTokenDocument): RefreshToken {
     return new RefreshToken(
-      (refreshTokenDoc._id as any).toString(),
+      String(refreshTokenDoc._id), // ✅ Conversión segura usando String()
       refreshTokenDoc.userId,
       refreshTokenDoc.token,
       refreshTokenDoc.expiresAt,
       refreshTokenDoc.isRevoked,
-      (refreshTokenDoc as any).createdAt || new Date()
+      refreshTokenDoc.createdAt,
     );
   }
 
-  private toPersistence(refreshToken: RefreshToken): Partial<RefreshTokenDocument> {
+  private toPersistence(
+    refreshToken: RefreshToken,
+  ): Partial<RefreshTokenDocument> {
     return {
       userId: refreshToken.userId,
       token: refreshToken.token,
       expiresAt: refreshToken.expiresAt,
-      isRevoked: refreshToken.isRevoked
+      isRevoked: refreshToken.isRevoked,
     };
   }
 }

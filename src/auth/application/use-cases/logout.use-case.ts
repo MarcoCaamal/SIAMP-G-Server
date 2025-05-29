@@ -1,11 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { IRefreshTokenRepository, REFRESH_TOKEN_REPOSITORY } from '../../domain/repositories/refresh-token.repository.interface';
+import {
+  IRefreshTokenRepository,
+  REFRESH_TOKEN_REPOSITORY,
+} from '../../domain/repositories/refresh-token.repository.interface';
 
 @Injectable()
 export class LogoutUseCase {
   constructor(
     @Inject(REFRESH_TOKEN_REPOSITORY)
-    private readonly refreshTokenRepository: IRefreshTokenRepository
+    private readonly refreshTokenRepository: IRefreshTokenRepository,
   ) {}
 
   async execute(refreshToken: string): Promise<{ message: string }> {
@@ -13,7 +16,7 @@ export class LogoutUseCase {
     await this.refreshTokenRepository.revoke(refreshToken);
 
     return {
-      message: 'Logged out successfully'
+      message: 'Logged out successfully',
     };
   }
 
@@ -22,7 +25,7 @@ export class LogoutUseCase {
     await this.refreshTokenRepository.revokeAllForUser(userId);
 
     return {
-      message: 'Logged out from all devices successfully'
+      message: 'Logged out from all devices successfully',
     };
   }
 }

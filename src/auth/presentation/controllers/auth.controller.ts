@@ -16,7 +16,7 @@ export class AuthController {
     private readonly loginUseCase: LoginUseCase,
     private readonly refreshTokenUseCase: RefreshTokenUseCase,
     private readonly verifyEmailUseCase: VerifyEmailUseCase,
-    private readonly logoutUseCase: LogoutUseCase
+    private readonly logoutUseCase: LogoutUseCase,
   ) {}
 
   @Post('register')
@@ -28,7 +28,7 @@ export class AuthController {
   async login(
     @Body() loginDto: LoginDto,
     @Ip() ip: string,
-    @Headers('user-agent') userAgent: string = ''
+    @Headers('user-agent') userAgent: string = '',
   ) {
     return this.loginUseCase.execute(loginDto, ip, userAgent);
   }

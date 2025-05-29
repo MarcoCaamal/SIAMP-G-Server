@@ -1,8 +1,17 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { User } from '../../../users/domain/entities/user.entity';
-import { IAuthRepository, AUTH_REPOSITORY } from '../../domain/repositories/auth.repository.interface';
-import { IHashingService, HASHING_SERVICE } from '../interfaces/hashing.service.interface';
-import { IEmailService, EMAIL_SERVICE } from '../interfaces/email.service.interface';
+import {
+  IAuthRepository,
+  AUTH_REPOSITORY,
+} from '../../domain/repositories/auth.repository.interface';
+import {
+  IHashingService,
+  HASHING_SERVICE,
+} from '../interfaces/hashing.service.interface';
+import {
+  IEmailService,
+  EMAIL_SERVICE,
+} from '../interfaces/email.service.interface';
 import { RegisterDto } from '../dto/register.dto';
 import { Email } from '../../domain/value-objects/email.value-object';
 import { Password } from '../../domain/value-objects/password.value-object';
@@ -16,13 +25,13 @@ export class RegisterUseCase {
     @Inject(HASHING_SERVICE)
     private readonly hashingService: IHashingService,
     @Inject(EMAIL_SERVICE)
-    private readonly emailService: IEmailService
+    private readonly emailService: IEmailService,
   ) {}
 
   async execute(registerDto: RegisterDto): Promise<{ message: string }> {
     // Validate email format
     const email = new Email(registerDto.email);
-    
+
     // Validate password strength
     const password = new Password(registerDto.password);
 
@@ -40,23 +49,30 @@ export class RegisterUseCase {
       registerDto.name,
       email.value,
       hashedPassword,
-      registerDto.timezone
+      registerDto.timezone,
     );
 
     // Generate verification token
     const verificationToken = crypto.randomBytes(32).toString('hex');
     const tokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-    
-    const userWithToken = user.setVerificationToken(verificationToken, tokenExpiresAt);
+
+    const userWithToken = user.setVerificationToken(
+      verificationToken,
+      tokenExpiresAt,
+    );
 
     // Save user
     await this.authRepository.saveUser(userWithToken);
 
     // Send verification email
-    await this.emailService.sendVerificationEmail(email.value, verificationToken);
+    await this.emailService.sendVerificationEmail(
+      email.value,
+      verificationToken,
+    );
 
     return {
-      message: 'User registered successfully. Please check your email to verify your account.'
+      message:
+        'User registered successfully. Please check your email to verify your account.',
     };
   }
 }
