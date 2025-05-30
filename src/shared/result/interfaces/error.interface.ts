@@ -1,4 +1,5 @@
 export interface ErrorResult {
-  code: number;
+  code: string;
   message: string;
+  statusCode: string;
 }

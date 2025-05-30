@@ -14,6 +14,8 @@ import {
 } from '../../domain/repositories/auth.repository.interface';
 import { RefreshTokenDto } from '../dto/refresh-token.dto';
 import { RefreshToken } from '../../domain/entities/refresh-token.entity';
+import { Result } from '../../../shared/result/result';
+import { AuthErrors } from '../../domain/errors/auth.errors';
 
 @Injectable()
 export class RefreshTokenUseCase {
@@ -26,49 +28,57 @@ export class RefreshTokenUseCase {
     private readonly authRepository: IAuthRepository,
   ) {}
 
-  async execute(refreshTokenDto: RefreshTokenDto): Promise<TokenPair> {
-    // Find refresh token
-    const refreshToken = await this.refreshTokenRepository.findByToken(
-      refreshTokenDto.refreshToken,
-    );
-    if (!refreshToken || !refreshToken.isValid()) {
-      throw new Error('Invalid or expired refresh token');
-    }
-
-    // Verify the JWT refresh token
+  async execute(refreshTokenDto: RefreshTokenDto): Promise<Result<TokenPair>> {
     try {
-      await this.jwtService.verifyRefreshToken(refreshTokenDto.refreshToken);
-    } catch (error: unknown) {
+      // Find refresh token
+      const refreshToken = await this.refreshTokenRepository.findByToken(
+        refreshTokenDto.refreshToken,
+      );
+      if (!refreshToken || !refreshToken.isValid()) {
+        return Result.fail<TokenPair>(AuthErrors.INVALID_REFRESH_TOKEN);
+      }
+
+      // Verify the JWT refresh token
+      try {
+        await this.jwtService.verifyRefreshToken(refreshTokenDto.refreshToken);
+      } catch {
+        await this.refreshTokenRepository.revoke(refreshTokenDto.refreshToken);
+        return Result.fail<TokenPair>(AuthErrors.REFRESH_TOKEN_EXPIRED);
+      }
+
+      // Get user details
+      const user = await this.authRepository.findUserById(refreshToken.userId);
+      if (!user || !user.isActive()) {
+        await this.refreshTokenRepository.revoke(refreshTokenDto.refreshToken);
+        return Result.fail<TokenPair>(AuthErrors.USER_NOT_FOUND_OR_INACTIVE);
+      }
+
+      // Generate new tokens
+      const payload = {
+        sub: user.id,
+        email: user.email,
+      };
+
+      const tokens = await this.jwtService.generateTokens(payload);
+
+      // Revoke old refresh token
       await this.refreshTokenRepository.revoke(refreshTokenDto.refreshToken);
-      throw new Error((error as Error).message || 'Invalid refresh token');
+
+      // Save new refresh token
+      const newRefreshToken = RefreshToken.create(
+        user.id,
+        tokens.refreshToken,
+        new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+      );
+      await this.refreshTokenRepository.save(newRefreshToken);
+
+      return Result.ok<TokenPair>(tokens);
+    } catch (error) {
+      return Result.fail<TokenPair>(
+        AuthErrors.internalError(
+          error instanceof Error ? error.message : 'Unknown error',
+        ),
+      );
     }
-
-    // Get user details
-    const user = await this.authRepository.findUserById(refreshToken.userId);
-    if (!user || !user.isActive()) {
-      await this.refreshTokenRepository.revoke(refreshTokenDto.refreshToken);
-      throw new Error('User not found or inactive');
-    }
-
-    // Generate new tokens
-    const payload = {
-      sub: user.id,
-      email: user.email,
-    };
-
-    const tokens = await this.jwtService.generateTokens(payload);
-
-    // Revoke old refresh token
-    await this.refreshTokenRepository.revoke(refreshTokenDto.refreshToken);
-
-    // Save new refresh token
-    const newRefreshToken = RefreshToken.create(
-      user.id,
-      tokens.refreshToken,
-      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-    );
-    await this.refreshTokenRepository.save(newRefreshToken);
-
-    return tokens;
   }
 }
