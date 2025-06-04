@@ -37,21 +37,46 @@ pipeline {
                 '''
             }
         }
-        
         stage('📦 Install Dependencies') {
             steps {
                 echo '📥 Installing Node.js dependencies...'
                 script {
-                    // Verificar archivos en el workspace
+                    // Verificar estructura del proyecto
                     sh 'ls -la'
                     sh 'pwd'
                     
-                    // Instalar dependencias con fallback
+                    // Verificar que existe el directorio SIAMP-G-Server y sus archivos
+                    sh '''
+                        if [ -d "SIAMP-G-Server" ]; then
+                            echo "✅ SIAMP-G-Server directory found"
+                            cd SIAMP-G-Server
+                            ls -la
+                            if [ -f package.json ]; then
+                                echo "✅ package.json found"
+                            else
+                                echo "❌ package.json NOT found in SIAMP-G-Server"
+                                exit 1
+                            fi
+                            if [ -f package-lock.json ]; then
+                                echo "✅ package-lock.json found"
+                            else
+                                echo "❌ package-lock.json NOT found in SIAMP-G-Server"
+                                exit 1
+                            fi
+                        else
+                            echo "❌ SIAMP-G-Server directory NOT found"
+                            echo "Available directories:"
+                            ls -la
+                            exit 1
+                        fi
+                    '''
+                    
+                    // Instalar dependencias usando el directorio correcto
                     def installResult = sh(
                         script: '''
                             docker run --rm \
-                                -v $PWD:/app \
-                                -w /app \
+                                -v ${PWD}:/workspace \
+                                -w /workspace/SIAMP-G-Server \
                                 node:22-alpine \
                                 sh -c "npm ci || npm install"
                         ''',
@@ -71,14 +96,13 @@ pipeline {
                 echo '🏗️ Building NestJS application...'
                 sh '''
                     docker run --rm \
-                    -v ${PWD}:/app \
-                    -w /app \
+                    -v ${PWD}:/workspace \
+                    -w /workspace/SIAMP-G-Server \
                     node:22-alpine \
                     sh -c "npm run build && echo 'Application built successfully'"
                 '''
             }
         }
-        
         stage('🧹 Code Quality') {
             parallel {
                 stage('ESLint') {
@@ -86,8 +110,8 @@ pipeline {
                         echo '🔍 Running ESLint...'
                         sh '''
                             docker run --rm \
-                            -v ${PWD}:/app \
-                            -w /app \
+                            -v ${PWD}:/workspace \
+                            -w /workspace/SIAMP-G-Server \
                             node:22-alpine \
                             sh -c "npm run lint || echo 'ESLint completed with warnings'"
                         '''
@@ -98,8 +122,8 @@ pipeline {
                         echo '🎨 Checking code formatting...'
                         sh '''
                             docker run --rm \
-                            -v ${PWD}:/app \
-                            -w /app \
+                            -v ${PWD}:/workspace \
+                            -w /workspace/SIAMP-G-Server \
                             node:22-alpine \
                             sh -c "npm run format || echo 'Format check completed'"
                         '''
@@ -107,16 +131,15 @@ pipeline {
                 }
             }
         }
-        
         stage('🧪 Tests') {
             parallel {
-                stage('Unit Tests') {                    
+                stage('Unit Tests') {
                     steps {
                         echo '🧪 Running unit tests...'
                         sh '''
                             docker run --rm \
-                            -v ${PWD}:/app \
-                            -w /app \
+                            -v ${PWD}:/workspace \
+                            -w /workspace/SIAMP-G-Server \
                             node:22-alpine \
                             sh -c "npm run test || echo 'Unit tests completed'"
                         '''
@@ -142,8 +165,8 @@ pipeline {
                                     # Ejecutar pruebas E2E
                                     docker run --rm \
                                     --network test-network \
-                                    -v ${PWD}:/app \
-                                    -w /app \
+                                    -v ${PWD}:/workspace \
+                                    -w /workspace/SIAMP-G-Server \
                                     -e MONGODB_URI=mongodb://test-mongo:27017/testdb \
                                     node:22-alpine \
                                     sh -c "npm run test:e2e || echo 'E2E tests completed'"
@@ -163,7 +186,6 @@ pipeline {
                 }
             }
         }
-        
         stage('🐳 Docker Build') {
             when {
                 anyOf {
@@ -179,6 +201,9 @@ pipeline {
                     env.IMAGE_TAG = imageTag
                     
                     sh '''
+                        # Cambiar al directorio del servidor para la construcción Docker
+                        cd SIAMP-G-Server
+                        
                         # Construir imagen Docker
                         if [ -z "${DOCKER_REGISTRY}" ]; then
                             # Solo construcción local
@@ -205,13 +230,12 @@ pipeline {
                     branch 'master'
                 }
             }
-            parallel {
-                stage('NPM Audit') {
+            parallel {                stage('NPM Audit') {
                     steps {
                         echo '🔍 Running NPM security audit...'
                         sh '''                            docker run --rm \
-                            -v ${PWD}:/app \
-                            -w /app \
+                            -v ${PWD}:/workspace \
+                            -w /workspace/SIAMP-G-Server \
                             node:22-alpine \
                             sh -c "npm audit --audit-level=high || echo 'NPM audit completed'"
                         '''
@@ -233,7 +257,6 @@ pipeline {
                 }
             }
         }
-        
         stage('🚀 Deploy to Staging') {
             when {
                 anyOf {
@@ -245,11 +268,14 @@ pipeline {
                 echo '🚀 Deploying to staging environment...'
                 script {
                     try {
+                        // Cambiar al directorio del servidor
+                        sh 'cd SIAMP-G-Server'
+                        
                         // Detener contenedores existentes
-                        sh 'docker-compose -f docker-compose.yml down || true'
+                        sh 'cd SIAMP-G-Server && docker-compose -f docker-compose.yml down || true'
                         
                         // Desplegar nueva versión
-                        sh 'docker-compose -f docker-compose.yml up -d --build'
+                        sh 'cd SIAMP-G-Server && docker-compose -f docker-compose.yml up -d --build'
                         
                         // Verificar que los servicios estén funcionando
                         sh 'sleep 30'
@@ -262,7 +288,6 @@ pipeline {
                 }
             }
         }
-        
         stage('🚀 Deploy to Production') {
             when {
                 anyOf {
@@ -291,10 +316,9 @@ pipeline {
                             
                             // Crear backup de la base de datos (opcional)
                             echo "📦 Creating database backup..."
-                            
-                            // Desplegar en producción con zero-downtime
-                            sh 'docker-compose -f docker-compose.prod.yml down || true'
-                            sh 'docker-compose -f docker-compose.prod.yml up -d --build'
+                              // Desplegar en producción con zero-downtime
+                            sh 'cd SIAMP-G-Server && docker-compose -f docker-compose.prod.yml down || true'
+                            sh 'cd SIAMP-G-Server && docker-compose -f docker-compose.prod.yml up -d --build'
                             
                             // Verificar despliegue
                             sh 'sleep 30'
