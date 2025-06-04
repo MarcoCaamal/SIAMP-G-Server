@@ -37,61 +37,34 @@ pipeline {
                 '''
             }
         }
+        
         stage('📦 Install Dependencies') {
             steps {
                 echo '📥 Installing Node.js dependencies...'
-                sh '''                    # Usar Node.js 22 que soporta lockfileVersion 3
-                    docker run --rm \
-                    -v ${PWD}:/app \
-                    -w /app \
-                    node:22-alpine \
-                    sh -c "
-                        echo '=== Environment Info ==='
-                        node --version
-                        npm --version
-                        pwd
-                        echo '=== Files in container ==='
-                        ls -la
-                        
-                        echo '=== Package files check ==='
-                        if [ -f package.json ]; then
-                            echo 'package.json found'
-                        else
-                            echo 'ERROR: package.json not found'
-                            exit 1
-                        fi
-                        
-                        if [ -f package-lock.json ]; then
-                            echo 'package-lock.json found, checking...'
-                            echo 'First few lines:'
-                            head -10 package-lock.json
-                            echo 'Size:' \$(wc -c < package-lock.json) 'bytes'
-                            
-                            echo '=== Attempting npm ci ==='
-                            if npm ci --verbose; then
-                                echo 'npm ci completed successfully'
-                            else
-                                echo 'npm ci failed, switching to npm install...'
-                                rm -rf node_modules package-lock.json 2>/dev/null || true
-                                echo '=== Using npm install ==='
-                                npm install --verbose
-                            fi
-                        else
-                            echo 'package-lock.json not found, using npm install...'
-                            npm install --verbose
-                        fi
-                        
-                        echo '=== Installation verification ==='
-                        if [ -d node_modules ]; then
-                            echo 'node_modules created successfully'
-                            echo 'Number of packages:' \$(ls node_modules | wc -l)
-                        else
-                            echo 'ERROR: node_modules not created'
-                            exit 1
-                        fi
-                    "
-                '''
-            }        
+                script {
+                    // Verificar archivos en el workspace
+                    sh 'ls -la'
+                    sh 'pwd'
+                    
+                    // Instalar dependencias con fallback
+                    def installResult = sh(
+                        script: '''
+                            docker run --rm \
+                                -v $PWD:/app \
+                                -w /app \
+                                node:22-alpine \
+                                sh -c "npm ci || npm install"
+                        ''',
+                        returnStatus: true
+                    )
+                    
+                    if (installResult != 0) {
+                        error('Failed to install dependencies')
+                    }
+                    
+                    echo '✅ Dependencies installed successfully'
+                }
+            }
         }
         stage('🔨 Build Application') {
             steps {
