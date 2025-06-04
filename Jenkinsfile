@@ -1,8 +1,7 @@
 pipeline {
     agent any
-    
-    environment {
-        NODE_VERSION = '18'
+      environment {
+        NODE_VERSION = '22'
         DOCKER_REGISTRY = ''
         IMAGE_NAME = 'siamp-g-server'
         PORT = '3000'
@@ -14,10 +13,10 @@ pipeline {
             steps {
                 echo '🔄 Checking out source code...'
                 checkout scm
-                echo "✅ Checked out branch: ${env.GIT_BRANCH ?: 'unknown'}"
-            }
+                echo "✅ Checked out branch: ${env.GIT_BRANCH ?: 'unknown'}"            }
         }
-          stage('🔍 Environment Info') {
+        
+        stage('🔍 Environment Info') {
             steps {
                 echo '📊 Displaying environment information...'
                 sh 'echo "Current directory: $(pwd)"'
@@ -91,11 +90,12 @@ pipeline {
                         fi
                     "
                 '''
-            }
-        }
-          stage('🔨 Build Application') {
+            }        }
+        
+        stage('🔨 Build Application') {
             steps {
-                echo '🏗️ Building NestJS application...'                sh '''
+                echo '🏗️ Building NestJS application...'
+                sh '''
                     docker run --rm \
                     -v ${PWD}:/app \
                     -w /app \
@@ -107,9 +107,9 @@ pipeline {
         
         stage('🧹 Code Quality') {
             parallel {
-                stage('ESLint') {
-                    steps {
-                        echo '🔍 Running ESLint...'                        sh '''
+                stage('ESLint') {                    steps {
+                        echo '🔍 Running ESLint...'
+                        sh '''
                             docker run --rm \
                             -v ${PWD}:/app \
                             -w /app \
@@ -118,9 +118,9 @@ pipeline {
                         '''
                     }
                 }
-                stage('Format Check') {
-                    steps {
-                        echo '🎨 Checking code formatting...'                        sh '''
+                stage('Format Check') {                    steps {
+                        echo '🎨 Checking code formatting...'
+                        sh '''
                             docker run --rm \
                             -v ${PWD}:/app \
                             -w /app \
@@ -134,9 +134,9 @@ pipeline {
         
         stage('🧪 Tests') {
             parallel {
-                stage('Unit Tests') {
-                    steps {
-                        echo '🧪 Running unit tests...'                        sh '''
+                stage('Unit Tests') {                    steps {
+                        echo '🧪 Running unit tests...'
+                        sh '''
                             docker run --rm \
                             -v ${PWD}:/app \
                             -w /app \
@@ -148,7 +148,8 @@ pipeline {
                 stage('E2E Tests') {
                     steps {
                         echo '🌐 Running end-to-end tests...'
-                        script {                            try {
+                        script {
+                            try {
                                 // Iniciar MongoDB para pruebas E2E
                                 sh 'docker run -d --name test-mongo -p 27017:27017 mongo:7.0'
                                 sh 'sleep 15'
