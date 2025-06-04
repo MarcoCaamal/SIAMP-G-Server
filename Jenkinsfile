@@ -70,8 +70,8 @@ pipeline {
                 echo '🏗️ Building NestJS application...'
                 sh '''
                     docker run --rm \
-                    -v ${PWD}:/workspace \
-                    -w /workspace/SIAMP-G-Server \
+                    -v /DATA/AppData/Jenkins/var/jenkins_home/workspace/SIAMP-G:/app \
+                    -w /app \
                     node:22-alpine \
                     sh -c "npm run build && echo 'Application built successfully'"
                 '''
