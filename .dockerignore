@@ -1,15 +1,49 @@
+# Dependencies
 node_modules
-npm-debug.log
-dist
-.git
-.gitignore
-README.md
+npm-debug.log*
+
+# Environment
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Testing
 .nyc_output
 coverage
-.nyc_output
+*.log
+
+# Build artifacts
+dist
+
+# IDE
 .vscode
 .idea
-*.log
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Documentation
+README.md
+*.md
+
+# CI/CD
+Jenkinsfile
+.github
+.gitlab-ci.yml
+
+# OS
 .DS_Store
 Thumbs.db
+
+# Misc
+*.swp
+*.swo
+*~

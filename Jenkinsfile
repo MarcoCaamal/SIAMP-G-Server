@@ -17,38 +17,89 @@ pipeline {
                 echo "✅ Checked out branch: ${env.GIT_BRANCH ?: 'unknown'}"
             }
         }
-        
-        stage('🔍 Environment Info') {
+          stage('🔍 Environment Info') {
             steps {
                 echo '📊 Displaying environment information...'
                 sh 'echo "Current directory: $(pwd)"'
                 sh 'echo "Files in directory:"; ls -la'
                 sh 'docker --version || echo "Docker not available"'
                 sh 'docker-compose --version || echo "Docker Compose not available"'
+                // Verificar package-lock.json
+                sh '''
+                    echo "Checking package-lock.json..."
+                    if [ -f package-lock.json ]; then
+                        echo "package-lock.json exists"
+                        echo "Size: $(wc -c < package-lock.json) bytes"
+                        echo "First few lines:"
+                        head -20 package-lock.json
+                    else
+                        echo "package-lock.json NOT found"
+                    fi
+                '''
             }
-        }
-        
-        stage('📦 Install Dependencies') {
+        }          stage('📦 Install Dependencies') {
             steps {
                 echo '📥 Installing Node.js dependencies...'
-                sh '''
+                sh '''                    # Usar Node.js 22 que soporta lockfileVersion 3
                     docker run --rm \
                     -v ${PWD}:/app \
                     -w /app \
-                    node:18-alpine \
-                    sh -c "npm ci && echo 'Dependencies installed successfully'"
+                    node:22-alpine \
+                    sh -c "
+                        echo '=== Environment Info ==='
+                        node --version
+                        npm --version
+                        pwd
+                        echo '=== Files in container ==='
+                        ls -la
+                        
+                        echo '=== Package files check ==='
+                        if [ -f package.json ]; then
+                            echo 'package.json found'
+                        else
+                            echo 'ERROR: package.json not found'
+                            exit 1
+                        fi
+                        
+                        if [ -f package-lock.json ]; then
+                            echo 'package-lock.json found, checking...'
+                            echo 'First few lines:'
+                            head -10 package-lock.json
+                            echo 'Size:' \$(wc -c < package-lock.json) 'bytes'
+                            
+                            echo '=== Attempting npm ci ==='
+                            if npm ci --verbose; then
+                                echo 'npm ci completed successfully'
+                            else
+                                echo 'npm ci failed, switching to npm install...'
+                                rm -rf node_modules package-lock.json 2>/dev/null || true
+                                echo '=== Using npm install ==='
+                                npm install --verbose
+                            fi
+                        else
+                            echo 'package-lock.json not found, using npm install...'
+                            npm install --verbose
+                        fi
+                        
+                        echo '=== Installation verification ==='
+                        if [ -d node_modules ]; then
+                            echo 'node_modules created successfully'
+                            echo 'Number of packages:' \$(ls node_modules | wc -l)
+                        else
+                            echo 'ERROR: node_modules not created'
+                            exit 1
+                        fi
+                    "
                 '''
             }
         }
-        
-        stage('🔨 Build Application') {
+          stage('🔨 Build Application') {
             steps {
-                echo '🏗️ Building NestJS application...'
-                sh '''
+                echo '🏗️ Building NestJS application...'                sh '''
                     docker run --rm \
                     -v ${PWD}:/app \
                     -w /app \
-                    node:18-alpine \
+                    node:22-alpine \
                     sh -c "npm run build && echo 'Application built successfully'"
                 '''
             }
@@ -58,24 +109,22 @@ pipeline {
             parallel {
                 stage('ESLint') {
                     steps {
-                        echo '🔍 Running ESLint...'
-                        sh '''
+                        echo '🔍 Running ESLint...'                        sh '''
                             docker run --rm \
                             -v ${PWD}:/app \
                             -w /app \
-                            node:18-alpine \
+                            node:22-alpine \
                             sh -c "npm run lint || echo 'ESLint completed with warnings'"
                         '''
                     }
                 }
                 stage('Format Check') {
                     steps {
-                        echo '🎨 Checking code formatting...'
-                        sh '''
+                        echo '🎨 Checking code formatting...'                        sh '''
                             docker run --rm \
                             -v ${PWD}:/app \
                             -w /app \
-                            node:18-alpine \
+                            node:22-alpine \
                             sh -c "npm run format || echo 'Format check completed'"
                         '''
                     }
@@ -87,12 +136,11 @@ pipeline {
             parallel {
                 stage('Unit Tests') {
                     steps {
-                        echo '🧪 Running unit tests...'
-                        sh '''
+                        echo '🧪 Running unit tests...'                        sh '''
                             docker run --rm \
                             -v ${PWD}:/app \
                             -w /app \
-                            node:18-alpine \
+                            node:22-alpine \
                             sh -c "npm run test || echo 'Unit tests completed'"
                         '''
                     }
@@ -106,14 +154,13 @@ pipeline {
                                 sh 'docker run -d --name test-mongo -p 27017:27017 mongo:7.0'
                                 sh 'sleep 15'
                                 
-                                // Ejecutar pruebas E2E
-                                sh '''
+                                // Ejecutar pruebas E2E                                sh '''
                                     docker run --rm \
                                     --link test-mongo:mongodb \
                                     -v ${PWD}:/app \
                                     -w /app \
                                     -e MONGODB_URI=mongodb://mongodb:27017/testdb \
-                                    node:18-alpine \
+                                    node:22-alpine \
                                     sh -c "npm run test:e2e || echo 'E2E tests completed'"
                                 '''
                             } catch (Exception e) {
