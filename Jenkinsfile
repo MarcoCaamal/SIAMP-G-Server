@@ -18,6 +18,12 @@ pipeline {
         }
         stage('🔍 Environment Info') {
             steps {
+                withCredentials([file(credentialsId: 'SIAMP-G-PROD-ENV-FILE', variable: 'ENV_FILE')]) {
+                    sh '''
+                        echo "🔍 Loading environment variables from ${ENV_FILE}..."
+                        cp "${ENV_FILE}" .env
+                    '''
+                }
                 echo '📊 Displaying environment information...'
                 sh 'echo "Current directory: $(pwd)"'
                 sh 'echo "Files in directory:"; ls -la'
@@ -324,21 +330,27 @@ pipeline {
                                 )
                             ]
                         )
-                        
-                        if (userInput == 'Deploy') {
+                          if (userInput == 'Deploy') {
                             echo '🚀 Deploying to production environment...'
-                              // Crear backup de la base de datos (opcional)
-                            echo "📦 Creating database backup..."
                             
-                            // Desplegar en producción con zero-downtime
-                            sh 'docker-compose -f docker-compose.prod.yml down || true'
-                            sh 'docker-compose -f docker-compose.prod.yml up -d --build'
-                            
-                            // Verificar despliegue
-                            sh 'sleep 30'
-                            sh 'curl -f http://localhost:3000/health || echo "⚠️ Production health check failed"'
-                            
-                            echo "✅ Production deployment completed"
+                            withCredentials([file(credentialsId: 'SIAMP-G-PROD-ENV-FILE', variable: 'ENV_FILE')]) {
+                                // Crear backup de la base de datos (opcional)
+                                echo "📦 Creating database backup..."
+                                echo "Environment file: ${ENV_FILE}"
+                                
+                                // Desplegar en producción con variables de entorno
+                                sh '''
+                                    echo "Loading production environment variables..."
+                                    docker-compose --env-file ${ENV_FILE} -f docker-compose.prod.yml down || true
+                                    docker-compose --env-file ${ENV_FILE} -f docker-compose.prod.yml up -d --build
+                                '''
+                                
+                                // Verificar despliegue
+                                sh 'sleep 30'
+                                sh 'curl -f http://localhost:3000/health || echo "⚠️ Production health check failed"'
+                                
+                                echo "✅ Production deployment completed"
+                            }
                         } else {
                             echo '❌ Production deployment cancelled by user'
                             error('Deployment cancelled')
