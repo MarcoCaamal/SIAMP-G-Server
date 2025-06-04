@@ -45,38 +45,12 @@ pipeline {
                     sh 'ls -la'
                     sh 'pwd'
                     
-                    // Verificar que existe el directorio SIAMP-G-Server y sus archivos
-                    sh '''
-                        if [ -d "SIAMP-G-Server" ]; then
-                            echo "✅ SIAMP-G-Server directory found"
-                            cd SIAMP-G-Server
-                            ls -la
-                            if [ -f package.json ]; then
-                                echo "✅ package.json found"
-                            else
-                                echo "❌ package.json NOT found in SIAMP-G-Server"
-                                exit 1
-                            fi
-                            if [ -f package-lock.json ]; then
-                                echo "✅ package-lock.json found"
-                            else
-                                echo "❌ package-lock.json NOT found in SIAMP-G-Server"
-                                exit 1
-                            fi
-                        else
-                            echo "❌ SIAMP-G-Server directory NOT found"
-                            echo "Available directories:"
-                            ls -la
-                            exit 1
-                        fi
-                    '''
-                    
                     // Instalar dependencias usando el directorio correcto
                     def installResult = sh(
                         script: '''
                             docker run --rm \
-                                -v ${PWD}:/workspace \
-                                -w /workspace/SIAMP-G-Server \
+                                -v /DATA/AppData/Jenkins/var/jenkins_home/workspace/SIAMP-G:/app \
+                                -w /app \
                                 node:22-alpine \
                                 sh -c "npm ci || npm install"
                         ''',
