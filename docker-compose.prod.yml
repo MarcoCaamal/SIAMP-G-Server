@@ -1,0 +1,43 @@
+services:  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: siamp-mongodb-prod
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - siamp-network  # NestJS Application
+  nestjs-app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      target: production
+    container_name: siamp-nestjs-prod
+    restart: always
+    ports:
+      - "${PORT}:${PORT}"
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/${MONGO_DATABASE}?authSource=admin
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - PORT=${PORT}
+    depends_on:
+      - mongodb
+    networks:
+      - siamp-network
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  siamp-network:
+    driver: bridge
