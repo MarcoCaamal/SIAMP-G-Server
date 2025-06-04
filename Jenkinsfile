@@ -35,6 +35,13 @@ pipeline {
                         echo "package-lock.json NOT found"
                     fi
                 '''
+                // Mostrar información de la rama
+                script {
+                    echo "🔍 Branch information:"
+                    echo "GIT_BRANCH: ${env.GIT_BRANCH ?: 'undefined'}"
+                    echo "BRANCH_NAME: ${env.BRANCH_NAME ?: 'undefined'}"
+                    echo "GIT_COMMIT: ${env.GIT_COMMIT ?: 'undefined'}"
+                }
             }
         }
         stage('📦 Install Dependencies') {
@@ -168,13 +175,18 @@ pipeline {
                     }
                 }
             }
-        }
-        stage('🐳 Docker Build') {
+       }
+       stage('🐳 Docker Build') {
             when {
                 anyOf {
                     branch 'main'
-                    branch 'develop'
+                    branch 'develop' 
                     branch 'master'
+                    // Permitir en cualquier rama para testing/desarrollo
+                    allOf {
+                        not { branch 'production' }
+                        expression { return true }
+                    }
                 }
             }
             steps {
@@ -182,10 +194,9 @@ pipeline {
                 script {
                     def imageTag = "${BUILD_NUMBER}-${env.GIT_COMMIT?.take(8) ?: 'unknown'}"
                     env.IMAGE_TAG = imageTag
-                    
-                    sh '''
-                        # Cambiar al directorio del servidor para la construcción Docker
-                        cd SIAMP-G-Server
+                      sh '''
+                        # Los archivos del servidor están en la raíz del workspace
+                        echo "📁 Building Docker image from current directory..."
                         
                         # Construir imagen Docker
                         if [ -z "${DOCKER_REGISTRY}" ]; then
@@ -204,16 +215,21 @@ pipeline {
                 }
             }
         }
-        
         stage('🔒 Security Scan') {
             when {
                 anyOf {
                     branch 'main'
                     branch 'develop'
                     branch 'master'
+                    // Permitir en cualquier rama para testing/desarrollo  
+                    allOf {
+                        not { branch 'production' }
+                        expression { return true }
+                    }
                 }
             }
-            parallel {                stage('NPM Audit') {
+            parallel {
+                stage('NPM Audit') {
                     steps {
                         echo '🔍 Running NPM security audit...'
                         sh '''                            docker run --rm \
@@ -248,17 +264,16 @@ pipeline {
                 }
             }
             steps {
-                echo '🚀 Deploying to staging environment...'
-                script {
+                echo '🚀 Deploying to staging environment...'                script {
                     try {
-                        // Cambiar al directorio del servidor
-                        sh 'cd SIAMP-G-Server'
+                        // Los archivos docker-compose están en la raíz del workspace
+                        echo "🚀 Starting staging deployment..."
                         
                         // Detener contenedores existentes
-                        sh 'cd SIAMP-G-Server && docker-compose -f docker-compose.yml down || true'
+                        sh 'docker-compose -f docker-compose.yml down || true'
                         
                         // Desplegar nueva versión
-                        sh 'cd SIAMP-G-Server && docker-compose -f docker-compose.yml up -d --build'
+                        sh 'docker-compose -f docker-compose.yml up -d --build'
                         
                         // Verificar que los servicios estén funcionando
                         sh 'sleep 30'
@@ -296,12 +311,12 @@ pipeline {
                         
                         if (userInput == 'Deploy') {
                             echo '🚀 Deploying to production environment...'
-                            
-                            // Crear backup de la base de datos (opcional)
+                              // Crear backup de la base de datos (opcional)
                             echo "📦 Creating database backup..."
-                              // Desplegar en producción con zero-downtime
-                            sh 'cd SIAMP-G-Server && docker-compose -f docker-compose.prod.yml down || true'
-                            sh 'cd SIAMP-G-Server && docker-compose -f docker-compose.prod.yml up -d --build'
+                            
+                            // Desplegar en producción con zero-downtime
+                            sh 'docker-compose -f docker-compose.prod.yml down || true'
+                            sh 'docker-compose -f docker-compose.prod.yml up -d --build'
                             
                             // Verificar despliegue
                             sh 'sleep 30'
