@@ -78,13 +78,13 @@ export class UserDocument extends Document {
   @Prop({ default: 0 })
   failedLoginAttempts: number;
 
-  @Prop({ default: null })
+  @Prop({ default: null, type: Date })
   lastLoginAt: Date | null;
 
-  @Prop({ default: null })
+  @Prop({ default: null, type: String })
   lastLoginDevice: string | null;
 
-  @Prop({ default: null })
+  @Prop({ default: null, type: String })
   lastLoginLocation: string | null;
 
   @Prop({ type: NotificationPreferencesSchema, default: {} })
@@ -92,6 +92,10 @@ export class UserDocument extends Document {
 
   @Prop({ enum: ['free', 'premium'], default: 'free' })
   accountType: string;
+
+  // Timestamps automáticos (declarados explícitamente para TypeScript)
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(UserDocument);

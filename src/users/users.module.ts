@@ -7,15 +7,15 @@ import { UserDocument, UserSchema } from './infrastructure/schemas/user.schema';
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: UserDocument.name, schema: UserSchema }
-    ])
+      { name: UserDocument.name, schema: UserSchema },
+    ]),
   ],
   providers: [
     {
       provide: USER_REPOSITORY,
-      useClass: UserRepository
-    }
+      useClass: UserRepository,
+    },
   ],
-  exports: [USER_REPOSITORY]
+  exports: [USER_REPOSITORY],
 })
 export class UsersModule {}

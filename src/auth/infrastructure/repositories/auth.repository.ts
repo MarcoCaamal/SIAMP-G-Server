@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { IAuthRepository } from '../../domain/repositories/auth.repository.interface';
-import { IUserRepository, USER_REPOSITORY } from '../../../users/domain/repositories/user.repository.interface';
+import {
+  IUserRepository,
+  USER_REPOSITORY,
+} from '../../../users/domain/repositories/user.repository.interface';
 import { User } from '../../../users/domain/entities/user.entity';
 import { Inject } from '@nestjs/common';
 
@@ -8,7 +11,7 @@ import { Inject } from '@nestjs/common';
 export class AuthRepository implements IAuthRepository {
   constructor(
     @Inject(USER_REPOSITORY)
-    private readonly userRepository: IUserRepository
+    private readonly userRepository: IUserRepository,
   ) {}
 
   async findUserByEmail(email: string): Promise<User | null> {

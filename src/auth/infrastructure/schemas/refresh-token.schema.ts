@@ -14,6 +14,11 @@ export class RefreshTokenDocument extends Document {
 
   @Prop({ default: false })
   isRevoked: boolean;
+
+  // Timestamps automáticos
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export const RefreshTokenSchema = SchemaFactory.createForClass(RefreshTokenDocument);
+export const RefreshTokenSchema =
+  SchemaFactory.createForClass(RefreshTokenDocument);

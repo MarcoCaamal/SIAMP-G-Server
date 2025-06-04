@@ -1,7 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User, NotificationPreferences, VerificationToken, UserStatus, AccountType } from '../../domain/entities/user.entity';
+import {
+  User,
+  NotificationPreferences,
+  VerificationToken,
+  UserStatus,
+  AccountType,
+} from '../../domain/entities/user.entity';
 import { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import { UserDocument } from '../schemas/user.schema';
 
@@ -9,7 +15,7 @@ import { UserDocument } from '../schemas/user.schema';
 export class UserRepository implements IUserRepository {
   constructor(
     @InjectModel(UserDocument.name)
-    private readonly userModel: Model<UserDocument>
+    private readonly userModel: Model<UserDocument>,
   ) {}
 
   async findById(id: string): Promise<User | null> {
@@ -23,10 +29,12 @@ export class UserRepository implements IUserRepository {
   }
 
   async findByVerificationToken(token: string): Promise<User | null> {
-    const userDoc = await this.userModel.findOne({ 
-      'verificationToken.token': token,
-      'verificationToken.expiresAt': { $gt: new Date() }
-    }).exec();
+    const userDoc = await this.userModel
+      .findOne({
+        'verificationToken.token': token,
+        'verificationToken.expiresAt': { $gt: new Date() },
+      })
+      .exec();
     return userDoc ? this.toDomain(userDoc) : null;
   }
 
@@ -37,16 +45,14 @@ export class UserRepository implements IUserRepository {
   }
 
   async update(user: User): Promise<User> {
-    const updatedDoc = await this.userModel.findByIdAndUpdate(
-      user.id,
-      this.toPersistence(user),
-      { new: true }
-    ).exec();
-    
+    const updatedDoc = await this.userModel
+      .findByIdAndUpdate(user.id, this.toPersistence(user), { new: true })
+      .exec();
+
     if (!updatedDoc) {
       throw new Error('User not found');
     }
-    
+
     return this.toDomain(updatedDoc);
   }
 
@@ -61,21 +67,30 @@ export class UserRepository implements IUserRepository {
       silentHours: {
         enabled: userDoc.notificationPreferences?.silentHours?.enabled ?? false,
         start: userDoc.notificationPreferences?.silentHours?.start ?? '22:00',
-        end: userDoc.notificationPreferences?.silentHours?.end ?? '08:00'
+        end: userDoc.notificationPreferences?.silentHours?.end ?? '08:00',
       },
       eventTypes: {
-        deviceConnection: userDoc.notificationPreferences?.eventTypes?.deviceConnection ?? true,
-        deviceDisconnection: userDoc.notificationPreferences?.eventTypes?.deviceDisconnection ?? true,
-        scheduledEvent: userDoc.notificationPreferences?.eventTypes?.scheduledEvent ?? true,
-        systemAlerts: userDoc.notificationPreferences?.eventTypes?.systemAlerts ?? true
-      }
+        deviceConnection:
+          userDoc.notificationPreferences?.eventTypes?.deviceConnection ?? true,
+        deviceDisconnection:
+          userDoc.notificationPreferences?.eventTypes?.deviceDisconnection ??
+          true,
+        scheduledEvent:
+          userDoc.notificationPreferences?.eventTypes?.scheduledEvent ?? true,
+        systemAlerts:
+          userDoc.notificationPreferences?.eventTypes?.systemAlerts ?? true,
+      },
     };
 
-    const verificationToken: VerificationToken | null = userDoc.verificationToken ? {
-      token: userDoc.verificationToken.token,
-      expiresAt: userDoc.verificationToken.expiresAt
-    } : null;    return new User(
-      (userDoc._id as any).toString(),
+    const verificationToken: VerificationToken | null =
+      userDoc.verificationToken
+        ? {
+            token: userDoc.verificationToken.token,
+            expiresAt: userDoc.verificationToken.expiresAt,
+          }
+        : null;
+    return new User(
+      String(userDoc._id), // ✅ Conversión segura usando String()
       userDoc.name,
       userDoc.email,
       userDoc.password,
@@ -89,8 +104,8 @@ export class UserRepository implements IUserRepository {
       userDoc.lastLoginLocation,
       notificationPreferences,
       userDoc.accountType as AccountType,
-      (userDoc as any).createdAt || new Date(),
-      (userDoc as any).updatedAt || new Date()
+      userDoc.createdAt ? new Date(userDoc.createdAt) : new Date(), // ✅ Conversión segura
+      userDoc.updatedAt ? new Date(userDoc.updatedAt) : new Date(), // ✅ Conversión segura
     );
   }
 
@@ -108,7 +123,7 @@ export class UserRepository implements IUserRepository {
       lastLoginDevice: user.lastLoginDevice,
       lastLoginLocation: user.lastLoginLocation,
       notificationPreferences: user.notificationPreferences,
-      accountType: user.accountType
+      accountType: user.accountType,
     };
   }
 }

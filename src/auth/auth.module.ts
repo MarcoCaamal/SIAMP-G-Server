@@ -25,19 +25,23 @@ import { AuthRepository } from './infrastructure/repositories/auth.repository';
 import { RefreshTokenRepository } from './infrastructure/repositories/refresh-token.repository';
 
 // Schemas
-import { RefreshTokenDocument, RefreshTokenSchema } from './infrastructure/schemas/refresh-token.schema';
+import {
+  RefreshTokenDocument,
+  RefreshTokenSchema,
+} from './infrastructure/schemas/refresh-token.schema';
 
 // Controllers
 import { AuthController } from './presentation/controllers/auth.controller';
 
-@Module({  imports: [
+@Module({
+  imports: [
     UsersModule,
     JwtModule.register({
       global: true,
     }),
     MongooseModule.forFeature([
-      { name: RefreshTokenDocument.name, schema: RefreshTokenSchema }
-    ])
+      { name: RefreshTokenDocument.name, schema: RefreshTokenSchema },
+    ]),
   ],
   controllers: [AuthController],
   providers: [
@@ -47,34 +51,31 @@ import { AuthController } from './presentation/controllers/auth.controller';
     RefreshTokenUseCase,
     VerifyEmailUseCase,
     LogoutUseCase,
-    
+
     // Services
     {
       provide: HASHING_SERVICE,
-      useClass: BcryptHashingService
+      useClass: BcryptHashingService,
     },
     {
       provide: JWT_SERVICE,
-      useClass: NestJwtService
+      useClass: NestJwtService,
     },
     {
       provide: EMAIL_SERVICE,
-      useClass: ConsoleEmailService
+      useClass: ConsoleEmailService,
     },
-    
+
     // Repositories
     {
       provide: AUTH_REPOSITORY,
-      useClass: AuthRepository
+      useClass: AuthRepository,
     },
     {
       provide: REFRESH_TOKEN_REPOSITORY,
-      useClass: RefreshTokenRepository
-    }
+      useClass: RefreshTokenRepository,
+    },
   ],
-  exports: [
-    JWT_SERVICE,
-    AUTH_REPOSITORY
-  ]
+  exports: [JWT_SERVICE, AUTH_REPOSITORY],
 })
 export class AuthModule {}

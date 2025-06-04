@@ -6,14 +6,14 @@ export class LoginAttempt {
     public readonly ipAddress: string,
     public readonly userAgent: string,
     public readonly timestamp: Date,
-    public readonly failureReason?: string
+    public readonly failureReason?: string,
   ) {}
 
   static success(
     userId: string,
     email: string,
     ipAddress: string,
-    userAgent: string
+    userAgent: string,
   ): LoginAttempt {
     return new LoginAttempt(
       userId,
@@ -21,7 +21,7 @@ export class LoginAttempt {
       true,
       ipAddress,
       userAgent,
-      new Date()
+      new Date(),
     );
   }
 
@@ -30,7 +30,7 @@ export class LoginAttempt {
     email: string,
     ipAddress: string,
     userAgent: string,
-    reason: string
+    reason: string,
   ): LoginAttempt {
     return new LoginAttempt(
       userId,
@@ -39,7 +39,7 @@ export class LoginAttempt {
       ipAddress,
       userAgent,
       new Date(),
-      reason
+      reason,
     );
   }
 }

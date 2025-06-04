@@ -5,7 +5,7 @@ export class RefreshToken {
     public readonly token: string,
     public readonly expiresAt: Date,
     public readonly isRevoked: boolean,
-    public readonly createdAt: Date
+    public readonly createdAt: Date,
   ) {}
 
   static create(userId: string, token: string, expiresAt: Date): RefreshToken {
@@ -15,7 +15,7 @@ export class RefreshToken {
       token,
       expiresAt,
       false,
-      new Date()
+      new Date(),
     );
   }
 
@@ -34,7 +34,7 @@ export class RefreshToken {
       this.token,
       this.expiresAt,
       true,
-      this.createdAt
+      this.createdAt,
     );
   }
 }

@@ -39,14 +39,14 @@ export class User {
     public readonly notificationPreferences: NotificationPreferences,
     public readonly accountType: AccountType,
     public readonly createdAt: Date,
-    public readonly updatedAt: Date
+    public readonly updatedAt: Date,
   ) {}
 
   static create(
     name: string,
     email: string,
     hashedPassword: string,
-    timezone: string = 'UTC'
+    timezone: string = 'UTC',
   ): User {
     const defaultNotificationPreferences: NotificationPreferences = {
       email: true,
@@ -54,14 +54,14 @@ export class User {
       silentHours: {
         enabled: false,
         start: '22:00',
-        end: '08:00'
+        end: '08:00',
       },
       eventTypes: {
         deviceConnection: true,
         deviceDisconnection: true,
         scheduledEvent: true,
-        systemAlerts: true
-      }
+        systemAlerts: true,
+      },
     };
 
     return new User(
@@ -80,7 +80,7 @@ export class User {
       defaultNotificationPreferences,
       'free',
       new Date(),
-      new Date()
+      new Date(),
     );
   }
 
@@ -117,7 +117,7 @@ export class User {
       this.notificationPreferences,
       this.accountType,
       this.createdAt,
-      new Date()
+      new Date(),
     );
   }
 
@@ -138,7 +138,7 @@ export class User {
       this.notificationPreferences,
       this.accountType,
       this.createdAt,
-      new Date()
+      new Date(),
     );
   }
 
@@ -159,7 +159,7 @@ export class User {
       this.notificationPreferences,
       this.accountType,
       this.createdAt,
-      new Date()
+      new Date(),
     );
   }
 
@@ -180,7 +180,7 @@ export class User {
       this.notificationPreferences,
       this.accountType,
       this.createdAt,
-      new Date()
+      new Date(),
     );
   }
 }
