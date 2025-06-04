@@ -57,12 +57,13 @@ pipeline {
                     // Verificar estructura del proyecto
                     sh 'ls -la'
                     sh 'pwd'
-                    
-                    // Instalar dependencias usando el directorio correcto
+                      // Instalar dependencias usando el directorio correcto
                     def installResult = sh(
                         script: '''
+                            WORKSPACE_PATH="/DATA/AppData/Jenkins$(pwd)"
+                            echo "Using workspace path: ${WORKSPACE_PATH}"
                             docker run --rm \
-                                -v /DATA/AppData/Jenkins/var/jenkins_home/workspace/SIAMP-G:/app \
+                                -v "${WORKSPACE_PATH}:/app" \
                                 -w /app \
                                 node:22-alpine \
                                 sh -c "npm ci || npm install"
@@ -79,11 +80,12 @@ pipeline {
             }
         }
         stage('🔨 Build Application') {
-            steps {
-                echo '🏗️ Building NestJS application...'
+            steps {                echo '🏗️ Building NestJS application...'
                 sh '''
+                    WORKSPACE_PATH="/DATA/AppData/Jenkins$(pwd)"
+                    echo "Using workspace path: ${WORKSPACE_PATH}"
                     docker run --rm \
-                    -v /DATA/AppData/Jenkins/var/jenkins_home/workspace/SIAMP-G:/app \
+                    -v "${WORKSPACE_PATH}:/app" \
                     -w /app \
                     node:22-alpine \
                     sh -c "npm run build && echo 'Application built successfully'"
@@ -93,11 +95,12 @@ pipeline {
         stage('🧹 Code Quality') {
             parallel {
                 stage('ESLint') {
-                    steps {
-                        echo '🔍 Running ESLint...'
+                    steps {                        echo '🔍 Running ESLint...'
                         sh '''
+                            WORKSPACE_PATH="/DATA/AppData/Jenkins$(pwd)"
+                            echo "Using workspace path: ${WORKSPACE_PATH}"
                             docker run --rm \
-                            -v /DATA/AppData/Jenkins/var/jenkins_home/workspace/SIAMP-G:/app \
+                            -v "${WORKSPACE_PATH}:/app" \
                             -w /app \
                             node:22-alpine \
                             sh -c "npm run lint || echo 'ESLint completed with warnings'"
@@ -105,11 +108,12 @@ pipeline {
                     }
                 }
                 stage('Format Check') {                  
-                    steps {
-                        echo '🎨 Checking code formatting...'
+                    steps {                        echo '🎨 Checking code formatting...'
                         sh '''
+                            WORKSPACE_PATH="/DATA/AppData/Jenkins$(pwd)"
+                            echo "Using workspace path: ${WORKSPACE_PATH}"
                             docker run --rm \
-                            -v /DATA/AppData/Jenkins/var/jenkins_home/workspace/SIAMP-G:/app \
+                            -v "${WORKSPACE_PATH}:/app" \
                             -w /app \
                             node:22-alpine \
                             sh -c "npm run format || echo 'Format check completed'"
@@ -121,11 +125,12 @@ pipeline {
         stage('🧪 Tests') {
             parallel {
                 stage('Unit Tests') {
-                    steps {
-                        echo '🧪 Running unit tests...'
+                    steps {                        echo '🧪 Running unit tests...'
                         sh '''
+                            WORKSPACE_PATH="/DATA/AppData/Jenkins$(pwd)"
+                            echo "Using workspace path: ${WORKSPACE_PATH}"
                             docker run --rm \
-                            -v /DATA/AppData/Jenkins/var/jenkins_home/workspace/SIAMP-G:/app \
+                            -v "${WORKSPACE_PATH}:/app" \
                             -w /app \
                             node:22-alpine \
                             sh -c "npm run test || echo 'Unit tests completed'"
@@ -141,9 +146,11 @@ pipeline {
                                     // Iniciar MongoDB para pruebas E2E
                                     sh 'docker run -d --name test-mongo -p 27017:27017 mongo:7.0'
                                     sh 'sleep 15'
-                                    
-                                    // Ejecutar pruebas E2E
+                                      // Ejecutar pruebas E2E
                                     sh '''
+                                        WORKSPACE_PATH="/DATA/AppData/Jenkins$(pwd)"
+                                        echo "Using workspace path: ${WORKSPACE_PATH}"
+                                        
                                         # Crear red para comunicación entre contenedores
                                         docker network create test-network || true
                                         
@@ -153,7 +160,7 @@ pipeline {
                                         # Ejecutar pruebas E2E con timeout y flags para cerrar Jest automáticamente
                                         timeout 300s docker run --rm \
                                         --network test-network \
-                                        -v /DATA/AppData/Jenkins/var/jenkins_home/workspace/SIAMP-G:/app \
+                                        -v "${WORKSPACE_PATH}:/app" \
                                         -w /app \
                                         -e MONGODB_URI=mongodb://test-mongo:27017/testdb \
                                         -e CI=true \
@@ -244,10 +251,12 @@ pipeline {
             }
             parallel {
                 stage('NPM Audit') {
-                    steps {
-                        echo '🔍 Running NPM security audit...'
-                        sh '''                            docker run --rm \
-                            -v /DATA/AppData/Jenkins/var/jenkins_home/workspace/SIAMP-G:/app \
+                    steps {                        echo '🔍 Running NPM security audit...'
+                        sh '''
+                            WORKSPACE_PATH="/DATA/AppData/Jenkins$(pwd)"
+                            echo "Using workspace path: ${WORKSPACE_PATH}"
+                            docker run --rm \
+                            -v "${WORKSPACE_PATH}:/app" \
                             -w /app \
                             node:22-alpine \
                             sh -c "npm audit --audit-level=high || echo 'NPM audit completed'"
@@ -334,9 +343,6 @@ pipeline {
                             echo '🚀 Deploying to production environment...'
                             
                             withCredentials([file(credentialsId: 'SIAMP-G-PROD-ENV-FILE', variable: 'ENV_FILE')]) {
-                                // Crear backup de la base de datos (opcional)
-                                echo "📦 Creating database backup..."
-                                echo "Environment file: ${ENV_FILE}"
                                 
                                 // Desplegar en producción con variables de entorno
                                 sh '''
