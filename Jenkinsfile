@@ -16,7 +16,6 @@ pipeline {
                 echo "✅ Checked out branch: ${env.GIT_BRANCH ?: 'unknown'}"
             }
         }
-        
         stage('🔍 Environment Info') {
             steps {
                 echo '📊 Displaying environment information...'
@@ -37,7 +36,8 @@ pipeline {
                     fi
                 '''
             }
-        }          stage('📦 Install Dependencies') {
+        }
+        stage('📦 Install Dependencies') {
             steps {
                 echo '📥 Installing Node.js dependencies...'
                 sh '''                    # Usar Node.js 22 que soporta lockfileVersion 3
@@ -91,8 +91,8 @@ pipeline {
                         fi
                     "
                 '''
-            }        }
-        
+            }        
+        }
         stage('🔨 Build Application') {
             steps {
                 echo '🏗️ Building NestJS application...'
@@ -108,7 +108,8 @@ pipeline {
         
         stage('🧹 Code Quality') {
             parallel {
-                stage('ESLint') {                    steps {
+                stage('ESLint') {
+                    steps {
                         echo '🔍 Running ESLint...'
                         sh '''
                             docker run --rm \
@@ -119,7 +120,8 @@ pipeline {
                         '''
                     }
                 }
-                stage('Format Check') {                    steps {
+                stage('Format Check') {                  
+                    steps {
                         echo '🎨 Checking code formatting...'
                         sh '''
                             docker run --rm \
