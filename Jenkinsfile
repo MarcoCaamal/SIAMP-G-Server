@@ -118,42 +118,51 @@ pipeline {
                             sh -c "npm run test || echo 'Unit tests completed'"
                         '''
                     }
-                }
+                }                
                 stage('E2E Tests') {
                     steps {
                         echo '🌐 Running end-to-end tests...'
-                        script {
-                            try {
-                                // Iniciar MongoDB para pruebas E2E
-                                sh 'docker run -d --name test-mongo -p 27017:27017 mongo:7.0'
-                                sh 'sleep 15'
-                                
-                                // Ejecutar pruebas E2E
-                                sh '''
-                                    # Crear red para comunicación entre contenedores
-                                    docker network create test-network || true
+                        timeout(time: 10, unit: 'MINUTES') {
+                            script {
+                                try {
+                                    // Iniciar MongoDB para pruebas E2E
+                                    sh 'docker run -d --name test-mongo -p 27017:27017 mongo:7.0'
+                                    sh 'sleep 15'
                                     
-                                    # Conectar MongoDB a la red
-                                    docker network connect test-network test-mongo || true
-                                    
-                                    # Ejecutar pruebas E2E
-                                    docker run --rm \
-                                    --network test-network \
-                                    -v /DATA/AppData/Jenkins/var/jenkins_home/workspace/SIAMP-G:/app \
-                                    -w /app \
-                                    -e MONGODB_URI=mongodb://test-mongo:27017/testdb \
-                                    node:22-alpine \
-                                    sh -c "npm run test:e2e || echo 'E2E tests completed'"
-                                    
-                                    # Limpiar red
-                                    docker network rm test-network || true
-                                '''
-                            } catch (Exception e) {
-                                echo "E2E tests failed: ${e.getMessage()}"
-                            } finally {
-                                // Limpiar contenedor de pruebas
-                                sh 'docker stop test-mongo || true'
-                                sh 'docker rm test-mongo || true'
+                                    // Ejecutar pruebas E2E
+                                    sh '''
+                                        # Crear red para comunicación entre contenedores
+                                        docker network create test-network || true
+                                        
+                                        # Conectar MongoDB a la red
+                                        docker network connect test-network test-mongo || true
+                                        
+                                        # Ejecutar pruebas E2E con timeout y flags para cerrar Jest automáticamente
+                                        timeout 300s docker run --rm \
+                                        --network test-network \
+                                        -v /DATA/AppData/Jenkins/var/jenkins_home/workspace/SIAMP-G:/app \
+                                        -w /app \
+                                        -e MONGODB_URI=mongodb://test-mongo:27017/testdb \
+                                        -e CI=true \
+                                        node:22-alpine \
+                                        sh -c "npm run test:e2e -- --forceExit --runInBand || echo 'E2E tests completed'"
+                                        
+                                        # Limpiar red
+                                        docker network rm test-network || true
+                                    '''
+                                } catch (Exception e) {
+                                    echo "E2E tests failed: ${e.getMessage()}"
+                                } finally {
+                                    // Limpiar contenedor de pruebas y redes
+                                    sh '''
+                                        echo "🧹 Cleaning up test resources..."
+                                        docker network disconnect test-network test-mongo 2>/dev/null || true
+                                        docker network rm test-network 2>/dev/null || true
+                                        docker stop test-mongo 2>/dev/null || true
+                                        docker rm test-mongo 2>/dev/null || true
+                                        echo "✅ Test cleanup completed"
+                                    '''
+                                }
                             }
                         }
                     }
