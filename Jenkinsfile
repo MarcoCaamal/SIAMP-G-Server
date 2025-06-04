@@ -175,7 +175,8 @@ pipeline {
                     }
                 }
             }
-        }        stage('🐳 Docker Build') {
+        }        
+        stage('🐳 Docker Build') {
             when {
                 anyOf {
                     expression { env.GIT_BRANCH == 'main' }
@@ -217,7 +218,8 @@ pipeline {
                     '''
                 }
             }
-        }        stage('🔒 Security Scan') {
+        }        
+        stage('🔒 Security Scan') {
             when {
                 anyOf {
                     expression { env.GIT_BRANCH == 'main' }
