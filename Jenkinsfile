@@ -175,16 +175,20 @@ pipeline {
                     }
                 }
             }
-       }
-       stage('🐳 Docker Build') {
+        }
+        stage('🐳 Docker Build') {
             when {
                 anyOf {
                     branch 'main'
+                    branch 'origin/main'
                     branch 'develop' 
+                    branch 'origin/develop'
                     branch 'master'
+                    branch 'origin/master'
                     // Permitir en cualquier rama para testing/desarrollo
                     allOf {
                         not { branch 'production' }
+                        not { branch 'origin/production' }
                         expression { return true }
                     }
                 }
@@ -219,11 +223,15 @@ pipeline {
             when {
                 anyOf {
                     branch 'main'
+                    branch 'origin/main'
                     branch 'develop'
+                    branch 'origin/develop'
                     branch 'master'
+                    branch 'origin/master'
                     // Permitir en cualquier rama para testing/desarrollo  
                     allOf {
                         not { branch 'production' }
+                        not { branch 'origin/production' }
                         expression { return true }
                     }
                 }
@@ -260,7 +268,12 @@ pipeline {
             when {
                 anyOf {
                     branch 'develop'
+                    branch 'origin/develop'
                     branch 'staging'
+                    branch 'origin/staging'
+                    // Para testing, permitir también main
+                    branch 'main'
+                    branch 'origin/main'
                 }
             }
             steps {
@@ -291,7 +304,9 @@ pipeline {
             when {
                 anyOf {
                     branch 'main'
+                    branch 'origin/main'
                     branch 'master'
+                    branch 'origin/master'
                 }
             }
             steps {
