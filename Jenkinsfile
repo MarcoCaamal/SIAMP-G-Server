@@ -148,20 +148,30 @@ pipeline {
                 stage('E2E Tests') {
                     steps {
                         echo '🌐 Running end-to-end tests...'
-                        script {
-                            try {
+                        script {                            try {
                                 // Iniciar MongoDB para pruebas E2E
                                 sh 'docker run -d --name test-mongo -p 27017:27017 mongo:7.0'
                                 sh 'sleep 15'
                                 
-                                // Ejecutar pruebas E2E                                sh '''
+                                // Ejecutar pruebas E2E
+                                sh '''
+                                    # Crear red para comunicación entre contenedores
+                                    docker network create test-network || true
+                                    
+                                    # Conectar MongoDB a la red
+                                    docker network connect test-network test-mongo || true
+                                    
+                                    # Ejecutar pruebas E2E
                                     docker run --rm \
-                                    --link test-mongo:mongodb \
+                                    --network test-network \
                                     -v ${PWD}:/app \
                                     -w /app \
-                                    -e MONGODB_URI=mongodb://mongodb:27017/testdb \
+                                    -e MONGODB_URI=mongodb://test-mongo:27017/testdb \
                                     node:22-alpine \
                                     sh -c "npm run test:e2e || echo 'E2E tests completed'"
+                                    
+                                    # Limpiar red
+                                    docker network rm test-network || true
                                 '''
                             } catch (Exception e) {
                                 echo "E2E tests failed: ${e.getMessage()}"
@@ -221,11 +231,10 @@ pipeline {
                 stage('NPM Audit') {
                     steps {
                         echo '🔍 Running NPM security audit...'
-                        sh '''
-                            docker run --rm \
+                        sh '''                            docker run --rm \
                             -v ${PWD}:/app \
                             -w /app \
-                            node:18-alpine \
+                            node:22-alpine \
                             sh -c "npm audit --audit-level=high || echo 'NPM audit completed'"
                         '''
                     }
