@@ -84,7 +84,7 @@ pipeline {
                         echo '🔍 Running ESLint...'
                         sh '''
                             docker run --rm \
-                            -v /DATA/AppData/Jenkins/var/jenkins_home/workspace/SIAMP-G \
+                            -v /DATA/AppData/Jenkins/var/jenkins_home/workspace/SIAMP-G:/app \
                             -w /app \
                             node:22-alpine \
                             sh -c "npm run lint || echo 'ESLint completed with warnings'"
@@ -96,7 +96,7 @@ pipeline {
                         echo '🎨 Checking code formatting...'
                         sh '''
                             docker run --rm \
-                            -v /DATA/AppData/Jenkins/var/jenkins_home/workspace/SIAMP-G \
+                            -v /DATA/AppData/Jenkins/var/jenkins_home/workspace/SIAMP-G:/app \
                             -w /app \
                             node:22-alpine \
                             sh -c "npm run format || echo 'Format check completed'"
@@ -112,7 +112,7 @@ pipeline {
                         echo '🧪 Running unit tests...'
                         sh '''
                             docker run --rm \
-                            -v /DATA/AppData/Jenkins/var/jenkins_home/workspace/SIAMP-G \
+                            -v /DATA/AppData/Jenkins/var/jenkins_home/workspace/SIAMP-G:/app \
                             -w /app \
                             node:22-alpine \
                             sh -c "npm run test || echo 'Unit tests completed'"
@@ -139,7 +139,7 @@ pipeline {
                                     # Ejecutar pruebas E2E
                                     docker run --rm \
                                     --network test-network \
-                                    -v /DATA/AppData/Jenkins/var/jenkins_home/workspace/SIAMP-G \
+                                    -v /DATA/AppData/Jenkins/var/jenkins_home/workspace/SIAMP-G:/app \
                                     -w /app \
                                     -e MONGODB_URI=mongodb://test-mongo:27017/testdb \
                                     node:22-alpine \
@@ -208,7 +208,7 @@ pipeline {
                     steps {
                         echo '🔍 Running NPM security audit...'
                         sh '''                            docker run --rm \
-                            -v /DATA/AppData/Jenkins/var/jenkins_home/workspace/SIAMP-G \
+                            -v /DATA/AppData/Jenkins/var/jenkins_home/workspace/SIAMP-G:/app \
                             -w /app \
                             node:22-alpine \
                             sh -c "npm audit --audit-level=high || echo 'NPM audit completed'"
