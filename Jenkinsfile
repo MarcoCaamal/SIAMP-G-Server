@@ -175,20 +175,19 @@ pipeline {
                     }
                 }
             }
-        }
-        stage('🐳 Docker Build') {
+        }        stage('🐳 Docker Build') {
             when {
                 anyOf {
-                    branch 'main'
-                    branch 'origin/main'
-                    branch 'develop' 
-                    branch 'origin/develop'
-                    branch 'master'
-                    branch 'origin/master'
+                    expression { env.GIT_BRANCH == 'main' }
+                    expression { env.GIT_BRANCH == 'origin/main' }
+                    expression { env.GIT_BRANCH == 'develop' }
+                    expression { env.GIT_BRANCH == 'origin/develop' }
+                    expression { env.GIT_BRANCH == 'master' }
+                    expression { env.GIT_BRANCH == 'origin/master' }
                     // Permitir en cualquier rama para testing/desarrollo
                     allOf {
-                        not { branch 'production' }
-                        not { branch 'origin/production' }
+                        not { expression { env.GIT_BRANCH == 'production' } }
+                        not { expression { env.GIT_BRANCH == 'origin/production' } }
                         expression { return true }
                     }
                 }
@@ -218,20 +217,19 @@ pipeline {
                     '''
                 }
             }
-        }
-        stage('🔒 Security Scan') {
+        }        stage('🔒 Security Scan') {
             when {
                 anyOf {
-                    branch 'main'
-                    branch 'origin/main'
-                    branch 'develop'
-                    branch 'origin/develop'
-                    branch 'master'
-                    branch 'origin/master'
+                    expression { env.GIT_BRANCH == 'main' }
+                    expression { env.GIT_BRANCH == 'origin/main' }
+                    expression { env.GIT_BRANCH == 'develop' }
+                    expression { env.GIT_BRANCH == 'origin/develop' }
+                    expression { env.GIT_BRANCH == 'master' }
+                    expression { env.GIT_BRANCH == 'origin/master' }
                     // Permitir en cualquier rama para testing/desarrollo  
                     allOf {
-                        not { branch 'production' }
-                        not { branch 'origin/production' }
+                        not { expression { env.GIT_BRANCH == 'production' } }
+                        not { expression { env.GIT_BRANCH == 'origin/production' } }
                         expression { return true }
                     }
                 }
@@ -267,13 +265,13 @@ pipeline {
         stage('🚀 Deploy to Staging') {
             when {
                 anyOf {
-                    branch 'develop'
-                    branch 'origin/develop'
-                    branch 'staging'
-                    branch 'origin/staging'
+                    expression { env.GIT_BRANCH == 'develop' }
+                    expression { env.GIT_BRANCH == 'origin/develop' }
+                    expression { env.GIT_BRANCH == 'staging' }
+                    expression { env.GIT_BRANCH == 'origin/staging' }
                     // Para testing, permitir también main
-                    branch 'main'
-                    branch 'origin/main'
+                    expression { env.GIT_BRANCH == 'main' }
+                    expression { env.GIT_BRANCH == 'origin/main' }
                 }
             }
             steps {
@@ -303,10 +301,10 @@ pipeline {
         stage('🚀 Deploy to Production') {
             when {
                 anyOf {
-                    branch 'main'
-                    branch 'origin/main'
-                    branch 'master'
-                    branch 'origin/master'
+                    expression { env.GIT_BRANCH == 'origin/main' }
+                    expression { env.GIT_BRANCH == 'main' }
+                    expression { env.GIT_BRANCH == 'origin/master' }
+                    expression { env.GIT_BRANCH == 'master' }
                 }
             }
             steps {
