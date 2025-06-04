@@ -264,7 +264,8 @@ pipeline {
                 }
             }
             steps {
-                echo '🚀 Deploying to staging environment...'                script {
+                echo '🚀 Deploying to staging environment...'
+                script {
                     try {
                         // Los archivos docker-compose están en la raíz del workspace
                         echo "🚀 Starting staging deployment..."
