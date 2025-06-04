@@ -13,7 +13,8 @@ pipeline {
             steps {
                 echo '🔄 Checking out source code...'
                 checkout scm
-                echo "✅ Checked out branch: ${env.GIT_BRANCH ?: 'unknown'}"            }
+                echo "✅ Checked out branch: ${env.GIT_BRANCH ?: 'unknown'}"
+            }
         }
         
         stage('🔍 Environment Info') {
@@ -134,7 +135,8 @@ pipeline {
         
         stage('🧪 Tests') {
             parallel {
-                stage('Unit Tests') {                    steps {
+                stage('Unit Tests') {                    
+                    steps {
                         echo '🧪 Running unit tests...'
                         sh '''
                             docker run --rm \
