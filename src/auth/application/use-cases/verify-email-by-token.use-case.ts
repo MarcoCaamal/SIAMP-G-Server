@@ -7,12 +7,12 @@ import {
   IEmailService,
   EMAIL_SERVICE,
 } from '../interfaces/email.service.interface';
-import { VerifyEmailDto } from '../dto/verify-email.dto';
+import { VerifyEmailByTokenDto } from '../dto/verify-email-by-token.dto';
 import { Result } from '../../../shared/result/result';
 import { AuthErrors } from '../../domain/errors/auth.errors';
 
 @Injectable()
-export class VerifyEmailUseCase {
+export class VerifyEmailByTokenUseCase {
   constructor(
     @Inject(AUTH_REPOSITORY)
     private readonly authRepository: IAuthRepository,
@@ -21,33 +21,13 @@ export class VerifyEmailUseCase {
   ) {}
 
   async execute(
-    verifyEmailDto: VerifyEmailDto,
+    verifyEmailDto: VerifyEmailByTokenDto,
   ): Promise<Result<{ message: string }>> {
     try {
-      // Validate that either code or token is provided, but not both
-      if (!verifyEmailDto.code && !verifyEmailDto.token) {
-        return Result.fail<{ message: string }>(
-          AuthErrors.INVALID_VERIFICATION_CODE,
-        );
-      }
-
-      if (verifyEmailDto.code && verifyEmailDto.token) {
-        return Result.fail<{ message: string }>(
-          AuthErrors.INVALID_VERIFICATION_CODE,
-        );
-      }
-
-      // Find user by verification code or token
-      let user;
-      if (verifyEmailDto.code) {
-        user = await this.authRepository.findUserByVerificationCode(
-          verifyEmailDto.code,
-        );
-      } else if (verifyEmailDto.token) {
-        user = await this.authRepository.findUserByVerificationToken(
-          verifyEmailDto.token,
-        );
-      }
+      // Find user by verification token
+      const user = await this.authRepository.findUserByVerificationToken(
+        verifyEmailDto.token,
+      );
 
       if (!user) {
         return Result.fail<{ message: string }>(
@@ -55,7 +35,7 @@ export class VerifyEmailUseCase {
         );
       }
 
-      // Check if code/token is expired
+      // Check if token is expired
       if (
         user.verificationToken &&
         new Date() > user.verificationToken.expiresAt
@@ -77,7 +57,7 @@ export class VerifyEmailUseCase {
       }
 
       return Result.ok<{ message: string }>({
-        message: 'Email verified successfully. Your account is now active.',
+        message: 'Email verified successfully with token. Your account is now active.',
       });
     } catch (error) {
       return Result.fail<{ message: string }>(

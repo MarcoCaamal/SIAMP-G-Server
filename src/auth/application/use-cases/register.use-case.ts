@@ -69,25 +69,21 @@ export class RegisterUseCase {
         email.value,
         hashedPassword,
         registerDto.timezone,
-      );
+      );      // Generate verification code (4 digits)
+      const verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
+      const codeExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-      // Generate verification token
-      const verificationToken = crypto.randomBytes(32).toString('hex');
-      const tokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-
-      const userWithToken = user.setVerificationToken(
-        verificationToken,
-        tokenExpiresAt,
+      const userWithCode = user.setVerificationToken(
+        verificationCode,
+        codeExpiresAt,
       );
 
       // Save user
-      await this.authRepository.saveUser(userWithToken);
-
-      // Send verification email
+      await this.authRepository.saveUser(userWithCode);      // Send verification email with code
       try {
-        await this.emailService.sendVerificationEmail(
+        await this.emailService.sendVerificationCode(
           email.value,
-          verificationToken,
+          verificationCode,
         );
       } catch {
         return Result.fail<{ message: string }>(AuthErrors.EMAIL_SERVICE_ERROR);

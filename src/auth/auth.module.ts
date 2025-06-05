@@ -8,6 +8,10 @@ import { RegisterUseCase } from './application/use-cases/register.use-case';
 import { LoginUseCase } from './application/use-cases/login.use-case';
 import { RefreshTokenUseCase } from './application/use-cases/refresh-token.use-case';
 import { VerifyEmailUseCase } from './application/use-cases/verify-email.use-case';
+import { VerifyEmailByCodeUseCase } from './application/use-cases/verify-email-by-code.use-case';
+import { VerifyEmailByTokenUseCase } from './application/use-cases/verify-email-by-token.use-case';
+import { SendVerificationTokenUseCase } from './application/use-cases/send-verification-token.use-case';
+import { SendVerificationCodeUseCase } from './application/use-cases/send-verification-code.use-case';
 import { LogoutUseCase } from './application/use-cases/logout.use-case';
 
 // Services
@@ -43,13 +47,16 @@ import { AuthController } from './presentation/controllers/auth.controller';
       { name: RefreshTokenDocument.name, schema: RefreshTokenSchema },
     ]),
   ],
-  controllers: [AuthController],
-  providers: [
+  controllers: [AuthController],  providers: [
     // Use Cases
     RegisterUseCase,
     LoginUseCase,
     RefreshTokenUseCase,
     VerifyEmailUseCase,
+    VerifyEmailByCodeUseCase,
+    VerifyEmailByTokenUseCase,
+    SendVerificationTokenUseCase,
+    SendVerificationCodeUseCase,
     LogoutUseCase,
 
     // Services
