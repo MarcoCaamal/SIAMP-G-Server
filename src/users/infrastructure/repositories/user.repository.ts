@@ -38,6 +38,16 @@ export class UserRepository implements IUserRepository {
     return userDoc ? this.toDomain(userDoc) : null;
   }
 
+  async findByVerificationCode(code: string): Promise<User | null> {
+    const userDoc = await this.userModel
+      .findOne({
+        'verificationToken.token': code,
+        'verificationToken.expiresAt': { $gt: new Date() },
+      })
+      .exec();
+    return userDoc ? this.toDomain(userDoc) : null;
+  }
+
   async save(user: User): Promise<User> {
     const userDoc = new this.userModel(this.toPersistence(user));
     const savedDoc = await userDoc.save();

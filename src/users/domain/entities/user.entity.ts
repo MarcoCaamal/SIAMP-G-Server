@@ -1,5 +1,5 @@
 export interface VerificationToken {
-  token: string;
+  token: string; // Can be token or code
   expiresAt: Date;
 }
 
@@ -162,8 +162,7 @@ export class User {
       new Date(),
     );
   }
-
-  setVerificationToken(token: string, expiresAt: Date): User {
+  setVerificationToken(tokenOrCode: string, expiresAt: Date): User {
     return new User(
       this.id,
       this.name,
@@ -172,7 +171,7 @@ export class User {
       this.timezone,
       this.profilePicture,
       this.status,
-      { token, expiresAt },
+      { token: tokenOrCode, expiresAt },
       this.failedLoginAttempts,
       this.lastLoginAt,
       this.lastLoginDevice,

@@ -67,11 +67,22 @@ export class AuthErrors {
     message: 'Verification token has expired',
     statusCode: '410',
   };
-
   static readonly WELCOME_EMAIL_ERROR: ErrorResult = {
     code: 'AUTH_012',
     message: 'Failed to send welcome email',
     statusCode: '500',
+  };
+
+  static readonly INVALID_VERIFICATION_CODE: ErrorResult = {
+    code: 'AUTH_017',
+    message: 'Invalid or expired verification code',
+    statusCode: '400',
+  };
+
+  static readonly VERIFICATION_CODE_EXPIRED: ErrorResult = {
+    code: 'AUTH_018',
+    message: 'Verification code has expired',
+    statusCode: '410',
   };
 
   static readonly INVALID_REFRESH_TOKEN: ErrorResult = {
@@ -96,6 +107,18 @@ export class AuthErrors {
     code: 'AUTH_016',
     message: 'Failed to logout',
     statusCode: '500',
+  };
+
+  static readonly USER_NOT_FOUND: ErrorResult = {
+    code: 'AUTH_017',
+    message: 'User not found',
+    statusCode: '404',
+  };
+
+  static readonly USER_ALREADY_VERIFIED: ErrorResult = {
+    code: 'AUTH_018',
+    message: 'User account is already verified',
+    statusCode: '400',
   };
 
   static internalError(message: string): ErrorResult {

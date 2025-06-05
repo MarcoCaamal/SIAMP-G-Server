@@ -33,4 +33,8 @@ export class AuthRepository implements IAuthRepository {
   async findUserByVerificationToken(token: string): Promise<User | null> {
     return this.userRepository.findByVerificationToken(token);
   }
+
+  async findUserByVerificationCode(code: string): Promise<User | null> {
+    return this.userRepository.findByVerificationCode(code);
+  }
 }
