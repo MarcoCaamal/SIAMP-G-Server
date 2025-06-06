@@ -1,4 +1,5 @@
-import { Body, Controller, Post, Ip, Headers } from '@nestjs/common';
+import { Body, Controller, Post, Ip, Headers, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { RegisterUseCase } from '../../application/use-cases/register.use-case';
 import { LoginUseCase } from '../../application/use-cases/login.use-case';
 import { RefreshTokenUseCase } from '../../application/use-cases/refresh-token.use-case';
@@ -32,8 +33,14 @@ export class AuthController {
   ) {}
 
   @Post('register')
-  async register(@Body() registerDto: RegisterDto) {
-    return this.registerUseCase.execute(registerDto);
+  async register(@Body() registerDto: RegisterDto, @Res() res: Response) {
+    const result = await this.registerUseCase.execute(registerDto);
+    if (result.isSuccess) {
+      return res.status(201).json(result);
+    } else {
+      console.error('Registration error:', result.error);
+      return res.status(result.error?.statusCode || 500).json(result);
+    }
   }
 
   @Post('login')
@@ -41,41 +48,82 @@ export class AuthController {
     @Body() loginDto: LoginDto,
     @Ip() ip: string,
     @Headers('user-agent') userAgent: string = '',
+    @Res() res: Response,
   ) {
-    return this.loginUseCase.execute(loginDto, ip, userAgent);
+    const result = await this.loginUseCase.execute(loginDto, ip, userAgent);
+    if (result.isSuccess) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(result.error?.statusCode || 500).json(result);
+    }
   }
 
   @Post('refresh')
-  async refresh(@Body() refreshTokenDto: RefreshTokenDto) {
-    return this.refreshTokenUseCase.execute(refreshTokenDto);
+  async refresh(@Body() refreshTokenDto: RefreshTokenDto, @Res() res: Response) {
+    const result = await this.refreshTokenUseCase.execute(refreshTokenDto);
+    if (result.isSuccess) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(result.error?.statusCode || 500).json(result);
+    }
   }
   @Post('verify-email')
-  async verifyEmail(@Body() verifyEmailDto: VerifyEmailDto) {
-    return this.verifyEmailUseCase.execute(verifyEmailDto);
+  async verifyEmail(@Body() verifyEmailDto: VerifyEmailDto, @Res() res: Response) {
+    const result = await this.verifyEmailUseCase.execute(verifyEmailDto);
+    if (result.isSuccess) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(result.error?.statusCode || 500).json(result);
+    }
   }
 
   @Post('verify-email-code')
-  async verifyEmailByCode(@Body() verifyEmailDto: VerifyEmailByCodeDto) {
-    return this.verifyEmailByCodeUseCase.execute(verifyEmailDto);
+  async verifyEmailByCode(@Body() verifyEmailDto: VerifyEmailByCodeDto, @Res() res: Response) {
+    const result = await this.verifyEmailByCodeUseCase.execute(verifyEmailDto);
+    if (result.isSuccess) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(result.error?.statusCode || 500).json(result);
+    }
   }
 
   @Post('verify-email-token')
-  async verifyEmailByToken(@Body() verifyEmailDto: VerifyEmailByTokenDto) {
-    return this.verifyEmailByTokenUseCase.execute(verifyEmailDto);
+  async verifyEmailByToken(@Body() verifyEmailDto: VerifyEmailByTokenDto, @Res() res: Response) {
+    const result = await this.verifyEmailByTokenUseCase.execute(verifyEmailDto);
+    if (result.isSuccess) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(result.error?.statusCode || 500).json(result);
+    }
   }
 
   @Post('send-verification-token')
-  async sendVerificationToken(@Body() sendVerificationTokenDto: SendVerificationTokenDto) {
-    return this.sendVerificationTokenUseCase.execute(sendVerificationTokenDto.email);
+  async sendVerificationToken(@Body() sendVerificationTokenDto: SendVerificationTokenDto, @Res() res: Response) {
+    const result = await this.sendVerificationTokenUseCase.execute(sendVerificationTokenDto.email);
+    if (result.isSuccess) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(result.error?.statusCode || 500).json(result);
+    }
   }
 
   @Post('send-verification-code')
-  async sendVerificationCode(@Body() sendVerificationCodeDto: SendVerificationCodeDto) {
-    return this.sendVerificationCodeUseCase.execute(sendVerificationCodeDto);
+  async sendVerificationCode(@Body() sendVerificationCodeDto: SendVerificationCodeDto, @Res() res: Response) {
+    const result = await this.sendVerificationCodeUseCase.execute(sendVerificationCodeDto);
+    if (result.isSuccess) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(result.error?.statusCode || 500).json(result);
+    }
   }
 
   @Post('logout')
-  async logout(@Body() refreshTokenDto: RefreshTokenDto) {
-    return this.logoutUseCase.execute(refreshTokenDto.refreshToken);
+  async logout(@Body() refreshTokenDto: RefreshTokenDto, @Res() res: Response) {
+    const result = await this.logoutUseCase.execute(refreshTokenDto.refreshToken);
+    if (result.isSuccess) {
+      return res.status(200).json(result);
+    } else {
+      return res.status(result.error?.statusCode || 500).json(result);
+    }
   }
 }
