@@ -117,6 +117,26 @@ export class AuthController {
     }
   }
 
+  @Post('verify-email-code')
+  async verifyEmailByCode(@Body() verifyEmailDto: VerifyEmailByCodeDto) {
+    return this.verifyEmailByCodeUseCase.execute(verifyEmailDto);
+  }
+
+  @Post('verify-email-token')
+  async verifyEmailByToken(@Body() verifyEmailDto: VerifyEmailByTokenDto) {
+    return this.verifyEmailByTokenUseCase.execute(verifyEmailDto);
+  }
+
+  @Post('send-verification-token')
+  async sendVerificationToken(@Body() sendVerificationTokenDto: SendVerificationTokenDto) {
+    return this.sendVerificationTokenUseCase.execute(sendVerificationTokenDto.email);
+  }
+
+  @Post('send-verification-code')
+  async sendVerificationCode(@Body() sendVerificationCodeDto: SendVerificationCodeDto) {
+    return this.sendVerificationCodeUseCase.execute(sendVerificationCodeDto);
+  }
+
   @Post('logout')
   async logout(@Body() refreshTokenDto: RefreshTokenDto, @Res() res: Response) {
     const result = await this.logoutUseCase.execute(refreshTokenDto.refreshToken);
