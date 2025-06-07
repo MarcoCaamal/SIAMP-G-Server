@@ -112,46 +112,6 @@ export class AuthController {
   @Post('send-verification-token')
   async sendVerificationToken(
     @Body() sendVerificationTokenDto: SendVerificationTokenDto,
-    @Res() res: Response,
-  ) {
-    const result = await this.sendVerificationTokenUseCase.execute(
-      sendVerificationTokenDto.email,
-    );
-    if (result.isSuccess) {
-      return res.status(200).json(result);
-    } else {
-      return res.status(result.error?.statusCode || 500).json(result);
-    }
-  }
-
-  @Post('send-verification-code')
-  async sendVerificationCode(
-    @Body() sendVerificationCodeDto: SendVerificationCodeDto,
-    @Res() res: Response,
-  ) {
-    const result = await this.sendVerificationCodeUseCase.execute(
-      sendVerificationCodeDto,
-    );
-    if (result.isSuccess) {
-      return res.status(200).json(result);
-    } else {
-      return res.status(result.error?.statusCode || 500).json(result);
-    }
-  }
-
-  @Post('verify-email-code')
-  async verifyEmailByCode(@Body() verifyEmailDto: VerifyEmailByCodeDto) {
-    return this.verifyEmailByCodeUseCase.execute(verifyEmailDto);
-  }
-
-  @Post('verify-email-token')
-  async verifyEmailByToken(@Body() verifyEmailDto: VerifyEmailByTokenDto) {
-    return this.verifyEmailByTokenUseCase.execute(verifyEmailDto);
-  }
-
-  @Post('send-verification-token')
-  async sendVerificationToken(
-    @Body() sendVerificationTokenDto: SendVerificationTokenDto,
   ) {
     return this.sendVerificationTokenUseCase.execute(
       sendVerificationTokenDto.email,
