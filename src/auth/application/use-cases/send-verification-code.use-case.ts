@@ -25,23 +25,32 @@ export class SendVerificationCodeUseCase {
   ): Promise<Result<{ message: string }>> {
     try {
       // Find user by email
-      const user = await this.authRepository.findUserByEmail(sendVerificationCodeDto.email);
+      const user = await this.authRepository.findUserByEmail(
+        sendVerificationCodeDto.email,
+      );
 
       if (!user) {
         return Result.fail<{ message: string }>(AuthErrors.USER_NOT_FOUND);
       }
 
       if (user.status === 'active') {
-        return Result.fail<{ message: string }>(AuthErrors.USER_ALREADY_VERIFIED);
+        return Result.fail<{ message: string }>(
+          AuthErrors.USER_ALREADY_VERIFIED,
+        );
       }
 
       // Generate new 4-digit verification code
-      const verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
+      const verificationCode = Math.floor(
+        1000 + Math.random() * 9000,
+      ).toString();
       const expiresAt = new Date();
       expiresAt.setMinutes(expiresAt.getMinutes() + 15); // Code expires in 15 minutes
 
       // Update user with verification code
-      const userWithCode = user.setVerificationToken(verificationCode, expiresAt);
+      const userWithCode = user.setVerificationToken(
+        verificationCode,
+        expiresAt,
+      );
       await this.authRepository.updateUser(userWithCode);
 
       // Send verification code via email
@@ -55,7 +64,8 @@ export class SendVerificationCodeUseCase {
       }
 
       return Result.ok<{ message: string }>({
-        message: 'New verification code sent to your email. Please check your inbox.',
+        message:
+          'New verification code sent to your email. Please check your inbox.',
       });
     } catch (error) {
       return Result.fail<{ message: string }>(

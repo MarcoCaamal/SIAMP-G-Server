@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { IEmailService } from '../../application/interfaces/email.service.interface';
 
 @Injectable()
-export class ConsoleEmailService implements IEmailService {  async sendVerificationCode(email: string, code: string): Promise<void> {
+export class ConsoleEmailService implements IEmailService {
+  async sendVerificationCode(email: string, code: string): Promise<void> {
     await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate async operation
     console.log(`
     📧 Verification Email (Code)

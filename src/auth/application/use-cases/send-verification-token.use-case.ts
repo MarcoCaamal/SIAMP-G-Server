@@ -30,12 +30,17 @@ export class SendVerificationTokenUseCase {
       }
 
       if (user.status === 'active') {
-        return Result.fail<{ message: string }>(AuthErrors.USER_ALREADY_VERIFIED);
-      }      // Generate verification token (32 bytes hex string)
+        return Result.fail<{ message: string }>(
+          AuthErrors.USER_ALREADY_VERIFIED,
+        );
+      } // Generate verification token (32 bytes hex string)
       const verificationToken = randomBytes(32).toString('hex');
       const expiresAt = new Date();
       expiresAt.setHours(expiresAt.getHours() + 24); // Token expires in 24 hours// Update user with verification token
-      const userWithToken = user.setVerificationToken(verificationToken, expiresAt);
+      const userWithToken = user.setVerificationToken(
+        verificationToken,
+        expiresAt,
+      );
       await this.authRepository.updateUser(userWithToken);
 
       // Send verification email with token
@@ -46,7 +51,8 @@ export class SendVerificationTokenUseCase {
       }
 
       return Result.ok<{ message: string }>({
-        message: 'Verification token sent to your email. Please check your inbox.',
+        message:
+          'Verification token sent to your email. Please check your inbox.',
       });
     } catch (error) {
       return Result.fail<{ message: string }>(

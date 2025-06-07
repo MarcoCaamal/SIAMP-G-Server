@@ -47,7 +47,8 @@ import { AuthController } from './presentation/controllers/auth.controller';
       { name: RefreshTokenDocument.name, schema: RefreshTokenSchema },
     ]),
   ],
-  controllers: [AuthController],  providers: [
+  controllers: [AuthController],
+  providers: [
     // Use Cases
     RegisterUseCase,
     LoginUseCase,

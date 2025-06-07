@@ -59,7 +59,10 @@ export class AuthController {
   }
 
   @Post('refresh')
-  async refresh(@Body() refreshTokenDto: RefreshTokenDto, @Res() res: Response) {
+  async refresh(
+    @Body() refreshTokenDto: RefreshTokenDto,
+    @Res() res: Response,
+  ) {
     const result = await this.refreshTokenUseCase.execute(refreshTokenDto);
     if (result.isSuccess) {
       return res.status(200).json(result);
@@ -68,7 +71,10 @@ export class AuthController {
     }
   }
   @Post('verify-email')
-  async verifyEmail(@Body() verifyEmailDto: VerifyEmailDto, @Res() res: Response) {
+  async verifyEmail(
+    @Body() verifyEmailDto: VerifyEmailDto,
+    @Res() res: Response,
+  ) {
     const result = await this.verifyEmailUseCase.execute(verifyEmailDto);
     if (result.isSuccess) {
       return res.status(200).json(result);
@@ -78,7 +84,10 @@ export class AuthController {
   }
 
   @Post('verify-email-code')
-  async verifyEmailByCode(@Body() verifyEmailDto: VerifyEmailByCodeDto, @Res() res: Response) {
+  async verifyEmailByCode(
+    @Body() verifyEmailDto: VerifyEmailByCodeDto,
+    @Res() res: Response,
+  ) {
     const result = await this.verifyEmailByCodeUseCase.execute(verifyEmailDto);
     if (result.isSuccess) {
       return res.status(200).json(result);
@@ -88,7 +97,10 @@ export class AuthController {
   }
 
   @Post('verify-email-token')
-  async verifyEmailByToken(@Body() verifyEmailDto: VerifyEmailByTokenDto, @Res() res: Response) {
+  async verifyEmailByToken(
+    @Body() verifyEmailDto: VerifyEmailByTokenDto,
+    @Res() res: Response,
+  ) {
     const result = await this.verifyEmailByTokenUseCase.execute(verifyEmailDto);
     if (result.isSuccess) {
       return res.status(200).json(result);
@@ -98,8 +110,13 @@ export class AuthController {
   }
 
   @Post('send-verification-token')
-  async sendVerificationToken(@Body() sendVerificationTokenDto: SendVerificationTokenDto, @Res() res: Response) {
-    const result = await this.sendVerificationTokenUseCase.execute(sendVerificationTokenDto.email);
+  async sendVerificationToken(
+    @Body() sendVerificationTokenDto: SendVerificationTokenDto,
+    @Res() res: Response,
+  ) {
+    const result = await this.sendVerificationTokenUseCase.execute(
+      sendVerificationTokenDto.email,
+    );
     if (result.isSuccess) {
       return res.status(200).json(result);
     } else {
@@ -108,8 +125,13 @@ export class AuthController {
   }
 
   @Post('send-verification-code')
-  async sendVerificationCode(@Body() sendVerificationCodeDto: SendVerificationCodeDto, @Res() res: Response) {
-    const result = await this.sendVerificationCodeUseCase.execute(sendVerificationCodeDto);
+  async sendVerificationCode(
+    @Body() sendVerificationCodeDto: SendVerificationCodeDto,
+    @Res() res: Response,
+  ) {
+    const result = await this.sendVerificationCodeUseCase.execute(
+      sendVerificationCodeDto,
+    );
     if (result.isSuccess) {
       return res.status(200).json(result);
     } else {
@@ -128,18 +150,26 @@ export class AuthController {
   }
 
   @Post('send-verification-token')
-  async sendVerificationToken(@Body() sendVerificationTokenDto: SendVerificationTokenDto) {
-    return this.sendVerificationTokenUseCase.execute(sendVerificationTokenDto.email);
+  async sendVerificationToken(
+    @Body() sendVerificationTokenDto: SendVerificationTokenDto,
+  ) {
+    return this.sendVerificationTokenUseCase.execute(
+      sendVerificationTokenDto.email,
+    );
   }
 
   @Post('send-verification-code')
-  async sendVerificationCode(@Body() sendVerificationCodeDto: SendVerificationCodeDto) {
+  async sendVerificationCode(
+    @Body() sendVerificationCodeDto: SendVerificationCodeDto,
+  ) {
     return this.sendVerificationCodeUseCase.execute(sendVerificationCodeDto);
   }
 
   @Post('logout')
   async logout(@Body() refreshTokenDto: RefreshTokenDto, @Res() res: Response) {
-    const result = await this.logoutUseCase.execute(refreshTokenDto.refreshToken);
+    const result = await this.logoutUseCase.execute(
+      refreshTokenDto.refreshToken,
+    );
     if (result.isSuccess) {
       return res.status(200).json(result);
     } else {

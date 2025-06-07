@@ -17,7 +17,6 @@ import { Email } from '../../domain/value-objects/email.value-object';
 import { Password } from '../../domain/value-objects/password.value-object';
 import { Result } from '../../../shared/result/result';
 import { AuthErrors } from '../../domain/errors/auth.errors';
-import * as crypto from 'crypto';
 
 @Injectable()
 export class RegisterUseCase {
@@ -69,8 +68,10 @@ export class RegisterUseCase {
         email.value,
         hashedPassword,
         registerDto.timezone,
-      );      // Generate verification code (4 digits)
-      const verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
+      ); // Generate verification code (4 digits)
+      const verificationCode = Math.floor(
+        1000 + Math.random() * 9000,
+      ).toString();
       const codeExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
       const userWithCode = user.setVerificationToken(
@@ -79,7 +80,7 @@ export class RegisterUseCase {
       );
 
       // Save user
-      await this.authRepository.saveUser(userWithCode);      // Send verification email with code
+      await this.authRepository.saveUser(userWithCode); // Send verification email with code
       try {
         await this.emailService.sendVerificationCode(
           email.value,
