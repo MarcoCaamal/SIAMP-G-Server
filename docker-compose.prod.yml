@@ -12,7 +12,7 @@ services:  # MongoDB Database
     volumes:
       - mongodb_data:/data/db
     networks:
-      - proxy-net  # NestJS Application
+      - siamp-network  # NestJS Application
   nestjs-app:
     build:
       context: ./
@@ -32,12 +32,12 @@ services:  # MongoDB Database
     depends_on:
       - mongodb
     networks:
-      - proxy-net
+      - siamp-network
 
 volumes:
   mongodb_data:
     driver: local
 
 networks:
-  proxy-net:
-    external: true
+  siamp-network:
+    driver: bridge
