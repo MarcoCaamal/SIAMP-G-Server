@@ -10,6 +10,7 @@ import {
 import { VerifyEmailDto } from '../dto/verify-email.dto';
 import { Result } from '../../../shared/result/result';
 import { AuthErrors } from '../../domain/errors/auth.errors';
+import { User } from 'src/users/domain/entities/user.entity';
 
 @Injectable()
 export class VerifyEmailUseCase {
@@ -38,7 +39,7 @@ export class VerifyEmailUseCase {
       }
 
       // Find user by verification code or token
-      let user;
+      let user: User | null = null;
       if (verifyEmailDto.code) {
         user = await this.authRepository.findUserByVerificationCode(
           verifyEmailDto.code,

@@ -57,7 +57,8 @@ export class VerifyEmailByCodeUseCase {
       }
 
       return Result.ok<{ message: string }>({
-        message: 'Email verified successfully with code. Your account is now active.',
+        message:
+          'Email verified successfully with code. Your account is now active.',
       });
     } catch (error) {
       return Result.fail<{ message: string }>(
