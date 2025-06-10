@@ -29,10 +29,9 @@ export class SmtpEmailService implements IEmailService {
       this.logger.error('SMTP connection verification failed:', error);
     }
   }
-
   async sendVerificationCode(email: string, code: string): Promise<void> {
     const mailOptions = {
-      from: process.env.SMTP_FROM || process.env.SMTP_USER,
+      from: process.env.EMAIL_FROM || process.env.SMTP_USER,
       to: email,
       subject: 'SIAMP-G - Código de Verificación',
       html: `
@@ -73,12 +72,11 @@ export class SmtpEmailService implements IEmailService {
       throw new Error('Failed to send verification email');
     }
   }
-
   async sendVerificationToken(email: string, token: string): Promise<void> {
     const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${token}`;
     
     const mailOptions = {
-      from: process.env.SMTP_FROM || process.env.SMTP_USER,
+      from: process.env.EMAIL_FROM || process.env.SMTP_USER,
       to: email,
       subject: 'SIAMP-G - Verifica tu cuenta',
       html: `
@@ -125,12 +123,11 @@ export class SmtpEmailService implements IEmailService {
       throw new Error('Failed to send verification email');
     }
   }
-
   async sendPasswordResetEmail(email: string, token: string): Promise<void> {
     const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
     
     const mailOptions = {
-      from: process.env.SMTP_FROM || process.env.SMTP_USER,
+      from: process.env.EMAIL_FROM || process.env.SMTP_USER,
       to: email,
       subject: 'SIAMP-G - Restablece tu contraseña',
       html: `
@@ -177,10 +174,9 @@ export class SmtpEmailService implements IEmailService {
       throw new Error('Failed to send password reset email');
     }
   }
-
   async sendWelcomeEmail(email: string, name: string): Promise<void> {
     const mailOptions = {
-      from: process.env.SMTP_FROM || process.env.SMTP_USER,
+      from: process.env.EMAIL_FROM || process.env.SMTP_USER,
       to: email,
       subject: 'SIAMP-G - ¡Bienvenido!',
       html: `

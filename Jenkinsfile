@@ -347,7 +347,7 @@ pipeline {
                                 // Desplegar en producción con variables de entorno
                                 sh '''
                                     echo "Loading production environment variables..."
-                                    docker-compose --env-file ${ENV_FILE} -f docker-compose.prod.yml down || true
+                                    docker-compose -f docker-compose.prod.yml down || true
                                     docker-compose --env-file ${ENV_FILE} -f docker-compose.prod.yml up -d --build
                                 '''
                                 
