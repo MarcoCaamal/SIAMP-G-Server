@@ -20,7 +20,7 @@ import { JWT_SERVICE } from './application/interfaces/jwt.service.interface';
 import { EMAIL_SERVICE } from './application/interfaces/email.service.interface';
 import { BcryptHashingService } from './infrastructure/services/bcrypt-hashing.service';
 import { NestJwtService } from './infrastructure/services/nest-jwt.service';
-import { ConsoleEmailService } from './infrastructure/services/console-email.service';
+import { SmtpEmailService } from './infrastructure/services/smtp-email.service';
 
 // Repositories
 import { AUTH_REPOSITORY } from './domain/repositories/auth.repository.interface';
@@ -58,9 +58,7 @@ import { AuthController } from './presentation/controllers/auth.controller';
     VerifyEmailByTokenUseCase,
     SendVerificationTokenUseCase,
     SendVerificationCodeUseCase,
-    LogoutUseCase,
-
-    // Services
+    LogoutUseCase,    // Services
     {
       provide: HASHING_SERVICE,
       useClass: BcryptHashingService,
@@ -71,7 +69,7 @@ import { AuthController } from './presentation/controllers/auth.controller';
     },
     {
       provide: EMAIL_SERVICE,
-      useClass: ConsoleEmailService,
+      useClass: SmtpEmailService,
     },
 
     // Repositories

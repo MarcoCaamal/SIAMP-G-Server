@@ -48,7 +48,7 @@ services:
     container_name: siamp-mongo-express
     restart: unless-stopped
     ports:
-      - "8081:8081"
+      - "8080:8081"
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_USERNAME:-admin}
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_PASSWORD:-admin123}
