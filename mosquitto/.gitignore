@@ -1,0 +1,7 @@
+# Ignorar datos generados por Mosquitto
+data/
+log/
+config/passwd
+
+# Mantener solo archivos de configuración
+!config/mosquitto.conf
