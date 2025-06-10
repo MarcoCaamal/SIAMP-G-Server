@@ -27,7 +27,7 @@ export class Password {
       throw new Error('Password must contain at least one number');
     }
 
-    if (!/(?=.*[@$!%*?&])/.test(password)) {
+    if (!/(?=.*[@$!%*?&#])/.test(password)) {
       throw new Error('Password must contain at least one special character');
     }
   }
