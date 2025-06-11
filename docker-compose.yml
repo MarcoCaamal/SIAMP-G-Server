@@ -15,7 +15,6 @@ services:
       - ./mongo-init:/docker-entrypoint-initdb.d
     networks:
       - siamp-network
-
   # NestJS Application
   nestjs-app:
     build:
@@ -40,15 +39,21 @@ services:
       - SMTP_USER=${SMTP_USER}
       - SMTP_PASS=${SMTP_PASS}
       - EMAIL_FROM=${EMAIL_FROM}
+      # MQTT Configuration
+      - MQTT_HOST=mosquitto
+      - MQTT_PORT=${MQTT_PORT:-1883}
+      - MQTT_USERNAME=${MQTT_USERNAME:-siamp_server}
+      - MQTT_PASSWORD=${MQTT_PASSWORD:-mqtt_secure_pass}
+      - MQTT_CLIENT_ID=${MQTT_CLIENT_ID:-siamp_backend}
     volumes:
       - ./:/app
       - /app/node_modules
     depends_on:
       - mongodb
+      - mosquitto
     networks:
       - siamp-network
     command: npm run start:dev
-
   # MongoDB Admin Interface (Optional)
   mongo-express:
     image: mongo-express:1.0.2
@@ -65,7 +70,25 @@ services:
     depends_on:
       - mongodb
     networks:
+      - siamp-network  # Eclipse Mosquitto MQTT Broker
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    container_name: siamp-mosquitto
+    restart: unless-stopped
+    ports:
+      - "${MQTT_PORT:-1883}:1883"      # MQTT port
+      - "${MQTT_WS_PORT:-9001}:9001"   # WebSocket port
+    environment:
+      - MQTT_USERNAME=${MQTT_USERNAME:-siamp_server}
+      - MQTT_PASSWORD=${MQTT_PASSWORD:-mqtt_secure_pass}
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+      - ./mosquitto/init-mosquitto.sh:/init-mosquitto.sh:ro
+    networks:
       - siamp-network
+    command: sh /init-mosquitto.sh
 
 volumes:
   mongodb_data:
