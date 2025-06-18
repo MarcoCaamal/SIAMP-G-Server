@@ -45,10 +45,9 @@ export class UpdateDeviceDto {
 }
 
 export class ControlDeviceDto {
-  @IsString()
+  @IsBoolean()
   @IsOptional()
-  @IsIn(['on', 'off'])
-  action?: 'on' | 'off';
+  on?: boolean;
 
   @IsNumber()
   @Min(0)
