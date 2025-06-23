@@ -20,7 +20,8 @@ export class UsersController {
     private readonly updateUserProfileUseCase: UpdateUserProfileUseCase,
     private readonly updateNotificationPreferencesUseCase: UpdateNotificationPreferencesUseCase,
     private readonly changePasswordUseCase: ChangePasswordUseCase,
-  ) { } @ApiOperation({ summary: 'Obtener perfil del usuario actual' })
+  ) { } 
+  @ApiOperation({ summary: 'Obtener perfil del usuario actual' })
   @ApiOkResponse({
     description: 'Perfil de usuario obtenido exitosamente',
     type: UserSuccessResponse
@@ -48,7 +49,8 @@ export class UsersController {
     const result = await this.getUserProfileUseCase.execute(userId);
 
     return res.status(result.isSuccess ? 200 : (result.error?.statusCode || 500)).json(result);
-  } @ApiOperation({ summary: 'Actualizar información del perfil del usuario' })
+  } 
+  @ApiOperation({ summary: 'Actualizar información del perfil del usuario' })
   @ApiBody({ type: UpdateUserProfileDto })
   @ApiOkResponse({
     description: 'Perfil actualizado exitosamente',
