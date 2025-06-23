@@ -40,7 +40,7 @@ services:
       - SMTP_PASS=${SMTP_PASS}
       - EMAIL_FROM=${EMAIL_FROM}
       # MQTT Configuration
-      - MQTT_HOST=mosquitto
+      - MQTT_URL=${MQTT_URL:-mqtt://mosquitto:1883}
       - MQTT_PORT=${MQTT_PORT:-1883}
       - MQTT_USERNAME=${MQTT_USERNAME:-siamp_server}
       - MQTT_PASSWORD=${MQTT_PASSWORD:-mqtt_secure_pass}

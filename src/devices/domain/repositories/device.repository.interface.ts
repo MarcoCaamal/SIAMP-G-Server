@@ -6,10 +6,10 @@ export interface IDeviceRepository {
   findByUserId(userId: string): Promise<Device[]>;
   save(device: Device): Promise<Device>;
   update(device: Device): Promise<Device>;
-  delete(id: string): Promise<void>;
-  findConnectedDevices(): Promise<Device[]>;
+  delete(id: string): Promise<void>;  findConnectedDevices(): Promise<Device[]>;
   findByUserIdAndDeviceId(userId: string, deviceId: string): Promise<Device | null>;
   existsByDeviceId(deviceId: string): Promise<boolean>;
+  updateOnlineStatus(deviceId: string, isOnline: boolean): Promise<void>;
 }
 
 export const DEVICE_REPOSITORY = Symbol('DEVICE_REPOSITORY');

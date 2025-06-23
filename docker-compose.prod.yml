@@ -36,10 +36,37 @@ services:  # MongoDB Database
       - SMTP_USER=${SMTP_USER}
       - SMTP_PASS=${SMTP_PASS}
       - EMAIL_FROM=${EMAIL_FROM}
+      # MQTT Configuration
+      - MQTT_URL=${MQTT_URL}
+      - MQTT_PORT=${MQTT_PORT}
+      - MQTT_USERNAME=${MQTT_USERNAME}
+      - MQTT_PASSWORD=${MQTT_PASSWORD}
+      - MQTT_CLIENT_ID=${MQTT_CLIENT_ID}
     depends_on:
       - mongodb
+      - mosquitto
     networks:
       - siamp-network
+      
+  # Eclipse Mosquitto MQTT Broker
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    container_name: siamp-mosquitto-prod
+    restart: always
+    ports:
+      - "${MQTT_PORT}:1883"      # MQTT port
+      - "${MQTT_WS_PORT}:9001"   # WebSocket port
+    environment:
+      - MQTT_USERNAME=${MQTT_USERNAME}
+      - MQTT_PASSWORD=${MQTT_PASSWORD}
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+      - ./mosquitto/init-mosquitto.sh:/init-mosquitto.sh:ro
+    networks:
+      - siamp-network
+    command: sh /init-mosquitto.sh
 
 volumes:
   mongodb_data:

@@ -83,10 +83,25 @@ export class DeviceRepository implements IDeviceRepository {
     });
     return device ? this.toDomain(device) : null;
   }
-
   async existsByDeviceId(deviceId: string): Promise<boolean> {
     const count = await this.deviceModel.countDocuments({ deviceId });
     return count > 0;
+  }
+
+  async updateOnlineStatus(deviceId: string, isOnline: boolean): Promise<void> {
+    const result = await this.deviceModel.updateOne(
+      { deviceId },
+      { 
+        $set: { 
+          'status.isConnected': isOnline,
+          'status.lastConnectedAt': isOnline ? new Date() : undefined
+        } 
+      }
+    );
+    
+    if (result.matchedCount === 0) {
+      console.warn(`Device with ID ${deviceId} not found for online status update`);
+    }
   }
   private toDomain(doc: DeviceDocument): Device {
     return new Device(

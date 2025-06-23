@@ -1,7 +1,7 @@
 import { Device } from '../../domain/entities/device.entity';
 import { DeviceResponseDto, DeviceListResponseDto, DeviceControlResponseDto } from '../dto/device-response.dto';
 
-export class DeviceMapper {
+export class DeviceMapper {  
   static toResponseDto(device: Device): DeviceResponseDto {
     return {
       id: device.id,
@@ -11,8 +11,25 @@ export class DeviceMapper {
       model: device.model,
       firmwareVersion: device.firmwareVersion,
       habitatType: device.habitatType,
-      status: device.status,
-      networkConfig: device.networkConfig,
+      status: {
+        isConnected: device.status.isConnected,
+        lastConnectedAt: device.status.lastConnectedAt,
+        currentState: device.status.currentState,
+        brightness: device.status.brightness,
+        color: {
+          mode: device.status.color.mode,
+          rgb: {
+            r: device.status.color.rgb.r,
+            g: device.status.color.rgb.g,
+            b: device.status.color.rgb.b
+          },
+          temperature: device.status.color.temperature
+        }
+      },
+      networkConfig: {
+        ssid: device.networkConfig.ssid,
+        ipAddress: device.networkConfig.ipAddress
+      },
       createdAt: device.createdAt,
       updatedAt: device.updatedAt,
     };
@@ -29,7 +46,6 @@ export class DeviceMapper {
       disconnectedCount: devices.length - connectedCount,
     };
   }
-
   static toControlResponseDto(success: boolean, message: string, device?: Device): DeviceControlResponseDto {
     const response: DeviceControlResponseDto = {
       success,
@@ -41,7 +57,15 @@ export class DeviceMapper {
         isConnected: device.status.isConnected,
         currentState: device.status.currentState,
         brightness: device.status.brightness,
-        color: device.status.color,
+        color: {
+          mode: device.status.color.mode,
+          rgb: {
+            r: device.status.color.rgb.r,
+            g: device.status.color.rgb.g,
+            b: device.status.color.rgb.b
+          },
+          temperature: device.status.color.temperature
+        }
       };
     }
 

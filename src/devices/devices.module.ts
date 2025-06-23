@@ -17,9 +17,12 @@ import { MqttDeviceService } from './infrastructure/services/mqtt-device.service
 
 // Controllers
 import { DevicesController } from './presentation/controllers/devices.controller';
+import { MqttController } from './presentation/controllers/mqtt.controller';
 
 // External modules
 import { AuthModule } from '../auth/auth.module';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -27,8 +30,32 @@ import { AuthModule } from '../auth/auth.module';
       { name: DeviceDocument.name, schema: DeviceSchema },
     ]),
     forwardRef(() => AuthModule),
+    ClientsModule.registerAsync([
+      {
+        name: 'MQTT_CLIENT',
+        imports: [ConfigModule],        useFactory: (configService: ConfigService) => ({
+          transport: Transport.MQTT,
+          options: {
+            url: configService.get('MQTT_URL'),
+            clientId: `${configService.get('MQTT_CLIENT_ID')}_client`,
+            username: configService.get('MQTT_USERNAME'),
+            password: configService.get('MQTT_PASSWORD'),
+            host: 'mosquitto',
+            clean: true,
+            reconnectPeriod: 1000,
+            will: {
+              topic: 'siamp-g/client/status',
+              payload: JSON.stringify({ status: 'offline', timestamp: new Date().toISOString() }),
+              qos: 1,
+              retain: true,
+            },
+          },
+        }),
+        inject: [ConfigService],
+      },
+    ]),
   ],
-  controllers: [DevicesController],
+  controllers: [DevicesController, MqttController],
   providers: [
     {
       provide: DEVICE_REPOSITORY,
@@ -44,4 +71,4 @@ import { AuthModule } from '../auth/auth.module';
   ],
   exports: [DEVICE_REPOSITORY, MqttDeviceService],
 })
-export class DevicesModule {}
+export class DevicesModule { }
