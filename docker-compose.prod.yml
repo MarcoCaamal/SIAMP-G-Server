@@ -64,13 +64,14 @@ services:  # MongoDB Database
       - MQTT_URL=${MQTT_URL:-mqtt://mosquitto:1883}
       - MQTT_WS_PORT=${MQTT_WS_PORT:-9001}
     volumes:
-      - ./mosquitto/config:/mosquitto/config
-      - ./mosquitto/data:/mosquitto/data
-      - ./mosquitto/log:/mosquitto/log
-      - ./mosquitto/init-mosquitto.sh:/init-mosquitto.sh:ro
+      - /var/jenkins_home/workspace/SIAMP-G/mosquitto/config:/mosquitto/config
+      - /var/jenkins_home/workspace/SIAMP-G/mosquitto/data:/mosquitto/data
+      - /var/jenkins_home/workspace/SIAMP-G/mosquitto/log:/mosquitto/log
+      - /var/jenkins_home/workspace/SIAMP-G/mosquitto/init-mosquitto.sh:/init-mosquitto.sh:ro
     networks:
       - siamp-network
-    command: sh ./init-mosquitto.sh
+    # Usando ruta absoluta al script
+    command: sh /init-mosquitto.sh
 
 volumes:
   mongodb_data:
