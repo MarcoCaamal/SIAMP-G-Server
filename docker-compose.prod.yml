@@ -59,22 +59,19 @@ services:  # MongoDB Database
     environment:
       - MQTT_USERNAME=${MQTT_USERNAME}
       - MQTT_PASSWORD=${MQTT_PASSWORD}
+      - MQTT_PORT=${MQTT_PORT}
+      - MQTT_CLIENT_ID=${MQTT_CLIENT_ID}
+      - MQTT_URL=${MQTT_URL:-mqtt://mosquitto:1883}
+      - MQTT_WS_PORT=${MQTT_WS_PORT:-9001}
     volumes:
-      - mosquitto_data:/mosquitto/data
-      - mosquitto_log:/mosquitto/log
+      - /DATA/AppData/Jenkins/var/jenkins_home/workspace/SIAMP-G/mosquitto/config:/mosquitto/config
+      - /DATA/AppData/Jenkins/var/jenkins_home/workspace/SIAMP-G/mosquitto/data:/mosquitto/data
+      - /DATA/AppData/Jenkins/var/jenkins_home/workspace/SIAMP-G/mosquitto/log:/mosquitto/log
+      - /DATA/AppData/Jenkins/var/jenkins_home/workspace/SIAMP-G/mosquitto/init-mosquitto.sh:/init-mosquitto.sh:ro
     networks:
       - siamp-network
-    # Comando para diagnóstico de ubicación y listado de archivos
-    command: >
-      sh -c "
-      echo '===== UBICACIÓN ACTUAL =====';
-      pwd;
-      echo '===== LISTADO DE DIRECTORIOS RAÍZ =====';
-      ls -la /;
-      echo '===== LISTADO DE DIRECTORIOS MOSQUITTO =====';
-      ls -la /mosquitto || echo 'Directorio mosquitto no existe';
-      ls -la /mosquitto;
-      tail -f /dev/null"
+    # Usando ruta absoluta al script
+    # command: sh /init-mosquitto.sh
 
 volumes:
   mongodb_data:
