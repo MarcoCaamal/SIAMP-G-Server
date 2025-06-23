@@ -70,7 +70,7 @@ services:  # MongoDB Database
       - ./mosquitto/init-mosquitto.sh:/init-mosquitto.sh:ro
     networks:
       - siamp-network
-    command: sh /init-mosquitto.sh
+    # command: sh /init-mosquitto.sh
 
 volumes:
   mongodb_data:
