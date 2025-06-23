@@ -36,7 +36,7 @@ export class ControlDeviceUseCase {
 
       // Aplicar cambios de control localmente
       try {
-        if (dto.on) {
+        if (dto.on && dto.on === true) {
           device.turnOn();
         } else {
           device.turnOff();

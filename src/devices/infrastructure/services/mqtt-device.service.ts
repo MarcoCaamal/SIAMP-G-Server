@@ -2,6 +2,7 @@ import { Injectable, Inject, OnModuleInit, Logger } from '@nestjs/common';
 import { ControlDeviceDto, DeviceStatusDto } from '../../application/dto/device-request.dto';
 import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
+import { DEVICE_REPOSITORY, IDeviceRepository } from '../../domain/repositories/device.repository.interface';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -10,7 +11,8 @@ export class MqttDeviceService implements OnModuleInit {
   
   constructor(
     @Inject('MQTT_CLIENT') private readonly mqttClient: ClientProxy,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    @Inject(DEVICE_REPOSITORY) private readonly deviceRepository: IDeviceRepository
   ) {}
   async onModuleInit() {
     try {
@@ -101,7 +103,8 @@ export class MqttDeviceService implements OnModuleInit {
       console.error('Error requesting device status:', error);
       return false;
     }
-  }  async sendUnpairCommand(deviceId: string): Promise<boolean> {
+  }  
+  async sendUnpairCommand(deviceId: string): Promise<boolean> {
     try {
       const topic = `siamp-g/${deviceId}/command`;
       const payload = {
@@ -177,26 +180,80 @@ export class MqttDeviceService implements OnModuleInit {
   }
 
   // Métodos para manejar respuestas de dispositivos
-  async handleDeviceStatusUpdate(deviceId: string, status: DeviceStatusDto): Promise<void> {
+  async handleDeviceStatusUpdate(deviceId: string, statusDto: DeviceStatusDto): Promise<void> {
     try {
-      console.log(`[MQTT] Processing device ${deviceId} status update:`, status);
-      // TODO: Actualizar estado en base de datos usando un repositorio
-      // Por ejemplo: this.deviceRepository.updateStatus(deviceId, status);
+      this.logger.log(`Processing device ${deviceId} status update: ${JSON.stringify(statusDto)}`);
       
-      // También podrías emitir eventos para que otros servicios reaccionen
-      // this.eventEmitter.emit('device.status.updated', { deviceId, status });
+      // Verificar si el dispositivo existe
+      const device = await this.deviceRepository.findByDeviceId(deviceId);
+      
+      if (!device) {
+        this.logger.warn(`Received status update for unknown device: ${deviceId}`);
+        return;
+      }
+      
+      // Actualizar el dispositivo con el nuevo estado
+      if (statusDto.currentState !== undefined) {
+        if (statusDto.currentState === 'on') {
+          device.turnOn();
+        } else {
+          device.turnOff();
+        }
+      }
+      
+      if (statusDto.brightness !== undefined) {
+        device.setBrightness(statusDto.brightness);
+      }
+      
+      if (statusDto.color?.mode === 'rgb' && statusDto.color?.rgb) {
+        const { r, g, b } = statusDto.color.rgb;
+        device.setRgbColor(r, g, b);
+      } else if (statusDto.color?.mode === 'temperature' && statusDto.color?.temperature) {
+        device.setTemperature(statusDto.color.temperature);
+      }
+      
+      // Actualizar estado de conexión
+      device.setConnectionStatus(true);
+      
+      // Guardar los cambios en la base de datos
+      await this.deviceRepository.update(device);
+      this.logger.log(`Updated status for device ${deviceId}`);
+      
+      // Actualizar flag 'online'
+      await this.deviceRepository.updateOnlineStatus(deviceId, true);
     } catch (error) {
-      console.error('Error handling device status update:', error);
+      this.logger.error(`Error handling device status update: ${error.message}`, error.stack);
     }
   }
 
   async handleDeviceHeartbeat(deviceId: string, data: any): Promise<void> {
     try {
-      console.log(`[MQTT] Device ${deviceId} heartbeat received:`, data);
-      // TODO: Actualizar último heartbeat en base de datos
-      // Por ejemplo: this.deviceRepository.updateLastSeen(deviceId, new Date());
+      this.logger.log(`Device ${deviceId} heartbeat received: ${JSON.stringify(data)}`);
+      
+      // Verificar si el dispositivo existe
+      const device = await this.deviceRepository.findByDeviceId(deviceId);
+      
+      if (!device) {
+        this.logger.warn(`Received heartbeat for unknown device: ${deviceId}`);
+        return;
+      }
+      
+      // Extraer información adicional del heartbeat si está disponible
+      if (data.firmwareVersion) {
+        device.updateFirmwareVersion(data.firmwareVersion);
+      }
+      
+      // Actualizar estado de conexión para reflejar que el dispositivo está conectado
+      device.setConnectionStatus(true);
+      
+      // Guardar los cambios en la base de datos
+      await this.deviceRepository.update(device);
+      
+      // Actualizar flag 'online'
+      await this.deviceRepository.updateOnlineStatus(deviceId, true);
+      this.logger.log(`Device ${deviceId} heartbeat processed, device is online`);
     } catch (error) {
-      console.error('Error handling device heartbeat:', error);
+      this.logger.error(`Error handling device heartbeat: ${error.message}`, error.stack);
     }
   }
 }

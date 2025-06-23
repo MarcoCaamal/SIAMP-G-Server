@@ -283,7 +283,9 @@ export class DevicesController {
     }
   }
 
-  @ApiOperation({ summary: 'Desemparejar un dispositivo del usuario actual' })
+
+  
+  @ApiOperation({ summary: 'Desemparejar y eliminar un dispositivo del usuario actual' })
   @ApiParam({
     name: 'deviceId',
     description: 'ID único del dispositivo a desemparejar',
@@ -291,7 +293,7 @@ export class DevicesController {
     type: String
   })
   @ApiOkResponse({
-    description: 'Dispositivo desemparejado exitosamente',
+    description: 'Dispositivo desemparejado y eliminado exitosamente',
     type: MessageSuccessResponse
   })
   @ApiUnauthorizedResponse({
@@ -310,7 +312,7 @@ export class DevicesController {
     description: 'Error interno del servidor',
     type: DeviceErrorResponse
   })
-  @Delete(':deviceId')
+  @Delete(':deviceId/unpair')
   async unpairDevice(@Req() req: Request, @Res() res: Response, @Param('deviceId') deviceId: string) {
     const userId = (req as any).user?.id;
 
@@ -321,12 +323,13 @@ export class DevicesController {
       });
     }
 
+    // El caso de uso UnpairDeviceUseCase ya maneja tanto el desemparejamiento MQTT como la eliminación de la BD
     const result = await this.unpairDeviceUseCase.execute(userId, deviceId);
 
     if (result.isSuccess) {
       return res.status(200).json({
         _isSuccess: true,
-        _value: { message: 'Device unpaired successfully' },
+        _value: { message: 'Dispositivo desemparejado y eliminado con éxito' },
       });
     } else {
       return res.status(result.error?.statusCode || 500).json({
