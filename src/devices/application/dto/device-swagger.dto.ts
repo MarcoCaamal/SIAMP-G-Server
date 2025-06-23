@@ -1,6 +1,9 @@
-import { IsString, IsNotEmpty, IsNumber, Min, Max, IsOptional, IsBoolean, IsIn, Length, Matches } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsNotEmpty, IsOptional, Length, Matches } from 'class-validator';
 
+/**
+ * DTO para documentar las solicitudes de emparejamiento de dispositivos
+ */
 export class PairDeviceDto {
   @ApiProperty({
     description: 'Identificador único del dispositivo',
@@ -74,27 +77,65 @@ export class PairDeviceDto {
   ipAddress?: string;
 }
 
+/**
+ * DTO para documentar las solicitudes de actualización de dispositivos
+ */
 export class UpdateDeviceDto {
-  @IsString()
+  @ApiProperty({
+    description: 'Nuevo nombre para el dispositivo',
+    example: 'Lámpara de dormitorio',
+    required: false
+  })
   @IsOptional()
+  @IsString({ message: 'name debe ser una cadena de texto' })
+  @Length(2, 100, { message: 'name debe tener entre 2 y 100 caracteres' })
   name?: string;
 
-  @IsString()
+  @ApiProperty({
+    description: 'Nuevo tipo de hábitat o habitación',
+    example: 'dormitorio',
+    required: false
+  })
   @IsOptional()
+  @IsString({ message: 'habitatType debe ser una cadena de texto' })
   habitatType?: string;
 }
 
+/**
+ * DTO para documentar las solicitudes de control de dispositivos
+ */
 export class ControlDeviceDto {
-  @IsBoolean()
+  @ApiProperty({
+    description: 'Encender o apagar el dispositivo',
+    example: true,
+    required: false
+  })
   @IsOptional()
   on?: boolean;
 
-  @IsNumber()
-  @Min(0)
-  @Max(100)
+  @ApiProperty({
+    description: 'Nivel de brillo (de 0 a 100)',
+    example: 75,
+    minimum: 0,
+    maximum: 100,
+    required: false
+  })
   @IsOptional()
+  @Matches(/^(100|[1-9][0-9]?|0)$/, { message: 'brightness debe estar entre 0 y 100' })
   brightness?: number;
 
+  @ApiProperty({
+    description: 'Configuración de color del dispositivo',
+    required: false,
+    example: {
+      mode: 'rgb',
+      rgb: {
+        r: 255,
+        g: 100,
+        b: 50
+      }
+    }
+  })
   @IsOptional()
   color?: {
     mode: 'rgb' | 'temperature';
@@ -107,20 +148,43 @@ export class ControlDeviceDto {
   };
 }
 
+/**
+ * DTO para documentar el estado actual de un dispositivo
+ */
 export class DeviceStatusDto {
-  @IsBoolean()
+  @ApiProperty({
+    description: 'Indica si el dispositivo está conectado',
+    example: true
+  })
   isConnected: boolean;
 
-  @IsString()
-  @IsIn(['on', 'off'])
+  @ApiProperty({
+    description: 'Estado actual del dispositivo (encendido/apagado)',
+    example: 'on',
+    enum: ['on', 'off']
+  })
   currentState: 'on' | 'off';
 
-  @IsNumber()
-  @Min(0)
-  @Max(100)
+  @ApiProperty({
+    description: 'Nivel de brillo actual (de 0 a 100)',
+    example: 75,
+    minimum: 0,
+    maximum: 100
+  })
   brightness: number;
 
-  @IsOptional()
+  @ApiProperty({
+    description: 'Configuración de color actual del dispositivo',
+    required: false,
+    example: {
+      mode: 'rgb',
+      rgb: {
+        r: 255,
+        g: 100,
+        b: 50
+      }
+    }
+  })
   color?: {
     mode: 'rgb' | 'temperature';
     rgb?: {

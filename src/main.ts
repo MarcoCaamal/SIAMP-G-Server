@@ -3,6 +3,17 @@ import { AppModule } from './app.module';
 import { Transport } from '@nestjs/microservices/enums/transport.enum';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { 
+  DeviceSuccessResponse, 
+  DeviceErrorResponse, 
+  DeviceData, 
+  DeviceResponseValue, 
+  DevicesListResponseValue, 
+  MessageResponseValue,
+  SingleDeviceSuccessResponse,
+  DeviceListSuccessResponse,
+  MessageSuccessResponse
+} from './devices/application/dto/device-swagger-responses.dto';
 
 async function bootstrap() {
   // Crear una aplicación HTTP primero
@@ -25,7 +36,19 @@ async function bootstrap() {
     .setVersion('1.0')
     .addBearerAuth()
     .build();
-  const document = SwaggerModule.createDocument(app, config);
+  const document = SwaggerModule.createDocument(app, config, {
+    extraModels: [
+      DeviceData,
+      DeviceResponseValue,
+      DevicesListResponseValue,
+      MessageResponseValue,
+      DeviceSuccessResponse,
+      DeviceErrorResponse,
+      SingleDeviceSuccessResponse,
+      DeviceListSuccessResponse,
+      MessageSuccessResponse
+    ]
+  });
   SwaggerModule.setup('api', app, document);
 
   // Configurar microservicio MQTT
