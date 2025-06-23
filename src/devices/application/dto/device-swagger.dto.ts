@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsOptional, Length, Matches } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, Length, Matches, Max, Min, IsInt } from 'class-validator';
 
 /**
  * DTO para documentar las solicitudes de emparejamiento de dispositivos
@@ -112,7 +112,6 @@ export class ControlDeviceDto {
   })
   @IsOptional()
   on?: boolean;
-
   @ApiProperty({
     description: 'Nivel de brillo (de 0 a 100)',
     example: 75,
@@ -121,7 +120,9 @@ export class ControlDeviceDto {
     required: false
   })
   @IsOptional()
-  @Matches(/^(100|[1-9][0-9]?|0)$/, { message: 'brightness debe estar entre 0 y 100' })
+  @IsInt({ message: 'brightness debe ser un número entero' })
+  @Min(0, { message: 'brightness no puede ser menor que 0' })
+  @Max(100, { message: 'brightness no puede ser mayor que 100' })
   brightness?: number;
 
   @ApiProperty({
