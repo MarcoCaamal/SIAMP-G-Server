@@ -135,7 +135,8 @@ export class UsersController {
     }
 
     return res.status(result.error?.statusCode || 500).json(result);
-  } @ApiOperation({ summary: 'Cambiar contraseña del usuario' })
+  } 
+  @ApiOperation({ summary: 'Cambiar contraseña del usuario' })
   @ApiBody({ type: ChangePasswordDto })
   @ApiOkResponse({
     description: 'Contraseña cambiada exitosamente',
