@@ -14,15 +14,19 @@ import {
   SendVerificationTokenUseCase,
   SendVerificationCodeUseCase,
   LogoutUseCase
-} from './application/use-cases';
+} from './application/use-cases'
 
 // Services
-import { HASHING_SERVICE } from './application/interfaces/hashing.service.interface';
-import { JWT_SERVICE } from './application/interfaces/jwt.service.interface';
-import { EMAIL_SERVICE } from './application/interfaces/email.service.interface';
-import { BcryptHashingService } from './infrastructure/services/bcrypt-hashing.service';
-import { NestJwtService } from './infrastructure/services/nest-jwt.service';
-import { SmtpEmailService } from './infrastructure/services/smtp-email.service';
+import { 
+  BcryptHashingService,
+  NestJwtService,
+  SmtpEmailService
+} from './infrastructure/services';
+import {
+  EMAIL_SERVICE,
+  HASHING_SERVICE,
+  JWT_SERVICE,
+} from './application/interfaces'
 
 // Repositories
 import { AUTH_REPOSITORY } from './domain/repositories/auth.repository.interface';
