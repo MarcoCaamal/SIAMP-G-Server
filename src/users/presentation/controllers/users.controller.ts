@@ -7,7 +7,6 @@ import { UpdateNotificationPreferencesUseCase } from '../../application/use-case
 import { ChangePasswordUseCase } from '../../application/use-cases/change-password.use-case';
 import { UpdateUserProfileDto, UpdateNotificationPreferencesDto, ChangePasswordDto } from '../../application/dto/get-user-profile.dto';
 import { JwtAuthGuard } from '../../../auth/presentation/guards/jwt-auth.guard';
-import { UserErrors } from '../../domain/errors/user.errors';
 import { UserSuccessResponse, UserErrorResponse } from '../../application/dto/user-swagger.dto';
 
 @ApiTags('Users')
@@ -136,7 +135,7 @@ export class UsersController {
     const userId = (req as any).user?.id || '';
 
     const result = await this.changePasswordUseCase.execute(userId, changePasswordDto);
-    
+
     return res.status(result.isSuccess ? 200 : (result.error?.statusCode || 500)).json(result);
   }
 }
