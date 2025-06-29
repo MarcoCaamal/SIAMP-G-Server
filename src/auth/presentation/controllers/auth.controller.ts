@@ -1,24 +1,41 @@
 import { Body, Controller, Post, Ip, Headers, Res } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiUnauthorizedResponse, ApiBadRequestResponse } from '@nestjs/swagger';
+
 import { Response } from 'express';
-import { RegisterUseCase } from '../../application/use-cases/register.use-case';
-import { LoginUseCase } from '../../application/use-cases/login.use-case';
-import { RefreshTokenUseCase } from '../../application/use-cases/refresh-token.use-case';
-import { VerifyEmailUseCase } from '../../application/use-cases/verify-email.use-case';
-import { VerifyEmailByCodeUseCase } from '../../application/use-cases/verify-email-by-code.use-case';
-import { VerifyEmailByTokenUseCase } from '../../application/use-cases/verify-email-by-token.use-case';
-import { SendVerificationTokenUseCase } from '../../application/use-cases/send-verification-token.use-case';
-import { SendVerificationCodeUseCase } from '../../application/use-cases/send-verification-code.use-case';
-import { LogoutUseCase } from '../../application/use-cases/logout.use-case';
-import { RegisterDto } from '../../application/dto/register.dto';
-import { LoginDto } from '../../application/dto/login.dto';
-import { RefreshTokenDto } from '../../application/dto/refresh-token.dto';
-import { VerifyEmailDto } from '../../application/dto/verify-email.dto';
-import { VerifyEmailByCodeDto } from '../../application/dto/verify-email-by-code.dto';
-import { VerifyEmailByTokenDto } from '../../application/dto/verify-email-by-token.dto';
-import { SendVerificationTokenDto } from '../../application/dto/send-verification-token.dto';
-import { SendVerificationCodeDto } from '../../application/dto/send-verification-code.dto';
-import { AuthSuccessResponse, AuthErrorResponse } from '../../application/dto/auth-response.dto';
+import { 
+  ApiTags, 
+  ApiOperation, 
+  ApiResponse, 
+  ApiBody, 
+  ApiCreatedResponse, 
+  ApiOkResponse, 
+  ApiUnauthorizedResponse, 
+  ApiBadRequestResponse 
+} from '@nestjs/swagger';
+
+import { 
+  LoginUseCase,
+  RegisterUseCase,
+  RefreshTokenUseCase,
+  VerifyEmailUseCase,
+  VerifyEmailByCodeUseCase,
+  VerifyEmailByTokenUseCase,
+  SendVerificationTokenUseCase,
+  SendVerificationCodeUseCase,
+  LogoutUseCase
+} from './../../application/use-cases';
+
+import { 
+  AuthErrorResponse,
+  AuthSuccessResponse,
+  RegisterDto,
+  LoginDto,
+  RefreshTokenDto,
+  VerifyEmailDto,
+  VerifyEmailByCodeDto,
+  VerifyEmailByTokenDto,
+  SendVerificationTokenDto,
+  SendVerificationCodeDto
+} from '../../application/dto'
 
 @ApiTags('Authentication')
 @Controller('api/auth')
