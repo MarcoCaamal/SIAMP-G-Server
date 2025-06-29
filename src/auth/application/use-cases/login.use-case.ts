@@ -3,15 +3,7 @@ import {
   IAuthRepository,
   AUTH_REPOSITORY,
 } from '../../domain/repositories/auth.repository.interface';
-import {
-  IHashingService,
-  HASHING_SERVICE,
-} from '../interfaces/hashing.service.interface';
-import {
-  IJwtService,
-  JWT_SERVICE,
-  TokenPair,
-} from '../interfaces/jwt.service.interface';
+import { IHashingService, HASHING_SERVICE, IJwtService, JWT_SERVICE, TokenPair } from './../interfaces'
 import {
   IRefreshTokenRepository,
   REFRESH_TOKEN_REPOSITORY,
