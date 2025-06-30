@@ -4,23 +4,29 @@ import { JwtModule } from '@nestjs/jwt';
 import { UsersModule } from '../users/users.module';
 
 // Use Cases
-import { RegisterUseCase } from './application/use-cases/register.use-case';
-import { LoginUseCase } from './application/use-cases/login.use-case';
-import { RefreshTokenUseCase } from './application/use-cases/refresh-token.use-case';
-import { VerifyEmailUseCase } from './application/use-cases/verify-email.use-case';
-import { VerifyEmailByCodeUseCase } from './application/use-cases/verify-email-by-code.use-case';
-import { VerifyEmailByTokenUseCase } from './application/use-cases/verify-email-by-token.use-case';
-import { SendVerificationTokenUseCase } from './application/use-cases/send-verification-token.use-case';
-import { SendVerificationCodeUseCase } from './application/use-cases/send-verification-code.use-case';
-import { LogoutUseCase } from './application/use-cases/logout.use-case';
+import { 
+  LoginUseCase,
+  RegisterUseCase,
+  RefreshTokenUseCase,
+  VerifyEmailUseCase,
+  VerifyEmailByCodeUseCase,
+  VerifyEmailByTokenUseCase,
+  SendVerificationTokenUseCase,
+  SendVerificationCodeUseCase,
+  LogoutUseCase
+} from './application/use-cases'
 
 // Services
-import { HASHING_SERVICE } from './application/interfaces/hashing.service.interface';
-import { JWT_SERVICE } from './application/interfaces/jwt.service.interface';
-import { EMAIL_SERVICE } from './application/interfaces/email.service.interface';
-import { BcryptHashingService } from './infrastructure/services/bcrypt-hashing.service';
-import { NestJwtService } from './infrastructure/services/nest-jwt.service';
-import { SmtpEmailService } from './infrastructure/services/smtp-email.service';
+import { 
+  BcryptHashingService,
+  NestJwtService,
+  SmtpEmailService
+} from './infrastructure/services';
+import {
+  EMAIL_SERVICE,
+  HASHING_SERVICE,
+  JWT_SERVICE,
+} from './application/interfaces'
 
 // Repositories
 import { AUTH_REPOSITORY } from './domain/repositories/auth.repository.interface';
