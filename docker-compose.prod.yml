@@ -7,12 +7,11 @@ services:  # MongoDB Database
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
       MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
-    ports:
-      - "27017:27017"
     volumes:
       - mongodb_data:/data/db
     networks:
-      - siamp-network  # NestJS Application
+      - siamp-network
+      - proxy-net
   nestjs-app:
     build:
       context: ./
@@ -20,8 +19,6 @@ services:  # MongoDB Database
       target: production
     container_name: siamp-nestjs-prod
     restart: always
-    ports:
-      - "${PORT}:${PORT}"
     environment:
       - NODE_ENV=production
       - MONGODB_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/${MONGO_DATABASE}?authSource=admin
@@ -47,6 +44,7 @@ services:  # MongoDB Database
       - mosquitto
     networks:
       - siamp-network
+      - proxy-net
       
   # Eclipse Mosquitto MQTT Broker
   mosquitto:
@@ -70,7 +68,7 @@ services:  # MongoDB Database
       - ./mosquitto/init-mosquitto.sh:/init-mosquitto.sh:ro
     networks:
       - siamp-network
-    # Usando ruta estándar para el script
+      - proxy-net
     command: sh /init-mosquitto.sh
 
 volumes:
@@ -80,3 +78,5 @@ volumes:
 networks:
   siamp-network:
     driver: bridge
+  proxy-net:
+    external: true
