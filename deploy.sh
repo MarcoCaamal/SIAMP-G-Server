@@ -15,6 +15,12 @@ export JENKINS_WORKSPACE_PATH="${CURRENT_WORKSPACE}"
 # Función para deployment de staging
 deploy_staging() {
     echo "🚀 Deploying to staging..."
+    ls -al
+    
+    # Asegurar permisos del script de mosquitto
+    echo "🔧 Setting up Mosquitto script permissions..."
+    chmod +x mosquitto/init-mosquitto.sh 2>/dev/null || echo "⚠️ Could not set mosquitto script permissions"
+    
     docker-compose -f docker-compose.yml down || true
     docker-compose -f docker-compose.yml up -d --build
     echo "✅ Staging deployment completed"
@@ -29,6 +35,10 @@ deploy_production() {
         echo "❌ Error: .env file not found"
         exit 1
     fi
+    
+    # Asegurar permisos del script de mosquitto
+    echo "🔧 Setting up Mosquitto script permissions..."
+    chmod +x mosquitto/init-mosquitto.sh 2>/dev/null || echo "⚠️ Could not set mosquitto script permissions"
     
     docker-compose -f docker-compose.prod.yml down || true
     docker-compose --env-file .env -f docker-compose.prod.yml up -d --build
