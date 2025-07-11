@@ -64,14 +64,14 @@ services:  # MongoDB Database
       - MQTT_URL=${MQTT_URL:-mqtt://mosquitto:1883}
       - MQTT_WS_PORT=${MQTT_WS_PORT:-9001}
     volumes:
-      - ${JENKINS_WORKSPACE_PATH:-/var/jenkins_home/workspace/SIAMP-G}/mosquitto/config:/mosquitto/config
-      - ${JENKINS_WORKSPACE_PATH:-/var/jenkins_home/workspace/SIAMP-G}/mosquitto/data:/mosquitto/data
-      - ${JENKINS_WORKSPACE_PATH:-/var/jenkins_home/workspace/SIAMP-G}/mosquitto/log:/mosquitto/log
-      - ${JENKINS_WORKSPACE_PATH:-/var/jenkins_home/workspace/SIAMP-G}/mosquitto/init-mosquitto.sh:/mosquitto/init-mosquitto.sh
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+      - ./mosquitto/init-mosquitto.sh:/mosquitto/init-mosquitto.sh
     networks:
       - siamp-network
     # Usando ruta estándar para el script
-    command: sh /mosquitto/init-mosquitto.sh
+    command: sh -c "chmod +x /mosquitto/init-mosquitto.sh && /mosquitto/init-mosquitto.sh"
 
 volumes:
   mongodb_data:
