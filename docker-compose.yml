@@ -85,10 +85,10 @@ services:
       - ./mosquitto/config:/mosquitto/config
       - ./mosquitto/data:/mosquitto/data
       - ./mosquitto/log:/mosquitto/log
-      - ./mosquitto/init-mosquitto.sh:/docker-entrypoint.sh:ro
+      - ./mosquitto/init-mosquitto.sh:/mosquitto/init-mosquitto.sh
     networks:
       - siamp-network
-    command: sh /docker-entrypoint.sh
+    command: sh -c "dos2unix /mosquitto/init-mosquitto.sh 2>/dev/null || true; sh /mosquitto/init-mosquitto.sh"
 
 volumes:
   mongodb_data:
