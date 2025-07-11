@@ -71,7 +71,7 @@ services:  # MongoDB Database
     networks:
       - siamp-network
     # Usando ruta estándar para el script
-    command: sh /DATA/AppData/Jenkins/var/jenkins_home/workspace/SIAMP-G/mosquitto/init-mosquitto.sh
+    command: sh /mosquitto/init-mosquitto.sh
 
 volumes:
   mongodb_data:
