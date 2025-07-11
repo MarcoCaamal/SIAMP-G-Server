@@ -67,7 +67,7 @@ services:  # MongoDB Database
       - ${JENKINS_WORKSPACE_PATH:-/var/jenkins_home/workspace/SIAMP-G}/mosquitto/config:/mosquitto/config
       - ${JENKINS_WORKSPACE_PATH:-/var/jenkins_home/workspace/SIAMP-G}/mosquitto/data:/mosquitto/data
       - ${JENKINS_WORKSPACE_PATH:-/var/jenkins_home/workspace/SIAMP-G}/mosquitto/log:/mosquitto/log
-      - ${JENKINS_WORKSPACE_PATH:-/var/jenkins_home/workspace/SIAMP-G}/mosquitto/init-mosquitto.sh:/mosquitto/init-mosquitto.sh:ro
+      - ${JENKINS_WORKSPACE_PATH:-/var/jenkins_home/workspace/SIAMP-G}/mosquitto/init-mosquitto.sh:/mosquitto/init-mosquitto.sh
     networks:
       - siamp-network
     # Usando ruta estándar para el script
