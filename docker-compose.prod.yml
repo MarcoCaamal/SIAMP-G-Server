@@ -71,7 +71,7 @@ services:  # MongoDB Database
     networks:
       - siamp-network
     # Usando ruta estándar para el script
-    command: sh ls -al
+    command: sh ./mosquitto/init-mosquitto.sh
 
 volumes:
   mongodb_data:
