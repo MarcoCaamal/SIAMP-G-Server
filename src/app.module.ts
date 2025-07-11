@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { DevicesModule } from './devices/devices.module';
+import { LightingModesModule } from './lighting-modes/lighting-modes.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { DevicesModule } from './devices/devices.module';
     AuthModule,
     UsersModule,
     DevicesModule,
+    LightingModesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
