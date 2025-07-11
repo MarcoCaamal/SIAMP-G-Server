@@ -1,0 +1,20 @@
+# Dockerfile personalizado para Mosquitto
+FROM eclipse-mosquitto:2.0
+
+# Instalar herramientas adicionales si es necesario
+USER root
+RUN apk add --no-cache bash
+
+# Copiar el script de inicialización
+COPY mosquitto/init-mosquitto.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+# Crear directorios necesarios
+RUN mkdir -p /mosquitto/config /mosquitto/data /mosquitto/log
+RUN chown -R mosquitto:mosquitto /mosquitto
+
+# Cambiar de vuelta al usuario mosquitto
+USER mosquitto
+
+# Configurar el entrypoint
+ENTRYPOINT ["/docker-entrypoint.sh"]
