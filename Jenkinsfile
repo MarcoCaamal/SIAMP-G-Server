@@ -298,15 +298,11 @@ pipeline {
                         // Los archivos docker-compose están en la raíz del workspace
                         echo "🚀 Starting staging deployment..."
                         
-                        // Detener contenedores existentes
-                        sh 'docker-compose -f docker-compose.yml down || true'
-                        
-                        // Desplegar nueva versión
-                        sh 'docker-compose -f docker-compose.yml up -d --build'
-                        
-                        // Verificar que los servicios estén funcionando
-                        sh 'sleep 30'
-                        sh 'curl -f http://localhost:3000/health || echo "⚠️ Health check failed"'
+                        // Usar el script helper para deployment
+                        sh '''
+                            chmod +x deploy.sh
+                            ./deploy.sh staging
+                        '''
                         
                         echo "✅ Staging deployment completed"
                     } catch (Exception e) {
@@ -347,8 +343,9 @@ pipeline {
                                 // Desplegar en producción con variables de entorno
                                 sh '''
                                     echo "Loading production environment variables..."
-                                    docker-compose -f docker-compose.prod.yml down || true
-                                    docker-compose --env-file ${ENV_FILE} -f docker-compose.prod.yml up -d --build
+                                    cp "${ENV_FILE}" .env
+                                    chmod +x deploy.sh
+                                    ./deploy.sh production
                                 '''
                                 
                                 // Verificar despliegue
