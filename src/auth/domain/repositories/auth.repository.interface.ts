@@ -7,6 +7,8 @@ export interface IAuthRepository {
   updateUser(user: User): Promise<User>;
   findUserByVerificationToken(token: string): Promise<User | null>;
   findUserByVerificationCode(code: string): Promise<User | null>;
+  findUserByResetToken(token: string): Promise<User | null>;
+  findUserByResetCode(code: string): Promise<User | null>;
 }
 
 export const AUTH_REPOSITORY = Symbol('AUTH_REPOSITORY');

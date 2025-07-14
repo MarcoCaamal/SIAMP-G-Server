@@ -5,6 +5,7 @@ import {
   User,
   NotificationPreferences,
   VerificationToken,
+  ResetToken,
   UserStatus,
   AccountType,
 } from '../../domain/entities/user.entity';
@@ -43,6 +44,26 @@ export class UserRepository implements IUserRepository {
       .findOne({
         'verificationToken.token': code,
         'verificationToken.expiresAt': { $gt: new Date() },
+      })
+      .exec();
+    return userDoc ? this.toDomain(userDoc) : null;
+  }
+
+  async findByResetToken(token: string): Promise<User | null> {
+    const userDoc = await this.userModel
+      .findOne({
+        'resetToken.token': token,
+        'resetToken.expiresAt': { $gt: new Date() },
+      })
+      .exec();
+    return userDoc ? this.toDomain(userDoc) : null;
+  }
+
+  async findByResetCode(code: string): Promise<User | null> {
+    const userDoc = await this.userModel
+      .findOne({
+        'resetToken.token': code,
+        'resetToken.expiresAt': { $gt: new Date() },
       })
       .exec();
     return userDoc ? this.toDomain(userDoc) : null;
@@ -99,6 +120,15 @@ export class UserRepository implements IUserRepository {
             expiresAt: userDoc.verificationToken.expiresAt,
           }
         : null;
+
+    const resetToken: ResetToken | null =
+      userDoc.resetToken
+        ? {
+            token: userDoc.resetToken.token,
+            expiresAt: userDoc.resetToken.expiresAt,
+          }
+        : null;
+
     return new User(
       String(userDoc._id), // ✅ Conversión segura usando String()
       userDoc.name,
@@ -108,6 +138,7 @@ export class UserRepository implements IUserRepository {
       userDoc.profilePicture,
       userDoc.status as UserStatus,
       verificationToken,
+      resetToken,
       userDoc.failedLoginAttempts,
       userDoc.lastLoginAt,
       userDoc.lastLoginDevice,
@@ -128,6 +159,7 @@ export class UserRepository implements IUserRepository {
       profilePicture: user.profilePicture,
       status: user.status,
       verificationToken: user.verificationToken,
+      resetToken: user.resetToken,
       failedLoginAttempts: user.failedLoginAttempts,
       lastLoginAt: user.lastLoginAt,
       lastLoginDevice: user.lastLoginDevice,

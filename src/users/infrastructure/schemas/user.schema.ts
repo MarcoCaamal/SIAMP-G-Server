@@ -11,6 +11,15 @@ export class VerificationTokenSchema {
 }
 
 @Schema({ _id: false })
+export class ResetTokenSchema {
+  @Prop({ required: true })
+  token: string;
+
+  @Prop({ required: true })
+  expiresAt: Date;
+}
+
+@Schema({ _id: false })
 export class SilentHoursSchema {
   @Prop({ default: false })
   enabled: boolean;
@@ -74,6 +83,9 @@ export class UserDocument extends Document {
 
   @Prop({ type: VerificationTokenSchema, default: null })
   verificationToken: VerificationTokenSchema | null;
+
+  @Prop({ type: ResetTokenSchema, default: null })
+  resetToken: ResetTokenSchema | null;
 
   @Prop({ default: 0 })
   failedLoginAttempts: number;

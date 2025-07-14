@@ -24,6 +24,19 @@ import {
   LogoutUseCase
 } from './../../application/use-cases';
 
+import {
+  RequestPasswordResetCodeUseCase
+} from '../../application/use-cases/request-password-reset-code.use-case';
+import {
+  RequestPasswordResetTokenUseCase
+} from '../../application/use-cases/request-password-reset-token.use-case';
+import {
+  ResetPasswordByCodeUseCase
+} from '../../application/use-cases/reset-password-by-code.use-case';
+import {
+  ResetPasswordByTokenUseCase
+} from '../../application/use-cases/reset-password-by-token.use-case';
+
 import { 
   AuthErrorResponse,
   AuthSuccessResponse,
@@ -35,7 +48,11 @@ import {
   VerifyEmailByTokenDto,
   SendVerificationTokenDto,
   SendVerificationCodeDto
-} from '../../application/dto'
+} from '../../application/dto';
+
+import { RequestPasswordResetDto } from '../../application/dto/request-password-reset.dto';
+import { ResetPasswordByCodeDto } from '../../application/dto/reset-password-by-code.dto';
+import { ResetPasswordByTokenDto } from '../../application/dto/reset-password-by-token.dto';
 
 @ApiTags('Authentication')
 @Controller('api/auth')
@@ -50,6 +67,10 @@ export class AuthController {
     private readonly sendVerificationTokenUseCase: SendVerificationTokenUseCase,
     private readonly sendVerificationCodeUseCase: SendVerificationCodeUseCase,
     private readonly logoutUseCase: LogoutUseCase,
+    private readonly requestPasswordResetCodeUseCase: RequestPasswordResetCodeUseCase,
+    private readonly requestPasswordResetTokenUseCase: RequestPasswordResetTokenUseCase,
+    private readonly resetPasswordByCodeUseCase: ResetPasswordByCodeUseCase,
+    private readonly resetPasswordByTokenUseCase: ResetPasswordByTokenUseCase,
   ) {}
 
   @ApiOperation({ summary: 'Registrar un nuevo usuario' })
@@ -274,6 +295,155 @@ export class AuthController {
   async logout(@Body() refreshTokenDto: RefreshTokenDto, @Res() res: Response) {
     const result = await this.logoutUseCase.execute(
       refreshTokenDto.refreshToken,
+    );
+
+    return res.status(result.isSuccess ? 200 : (result.error?.statusCode || 500)).json(result);
+  }
+
+  // Password Reset Endpoints
+
+  @ApiOperation({ summary: 'Solicitar código de restablecimiento de contraseña' })
+  @ApiBody({ type: RequestPasswordResetDto })
+  @ApiOkResponse({
+    description: 'Código de restablecimiento enviado exitosamente',
+    type: AuthSuccessResponse
+  })
+  @ApiBadRequestResponse({
+    description: 'Email inválido',
+    type: AuthErrorResponse
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Error interno del servidor',
+    type: AuthErrorResponse
+  })
+  @Post('request-password-reset-code')
+  async requestPasswordResetCode(
+    @Body() requestPasswordResetDto: RequestPasswordResetDto,
+    @Res() res: Response,
+  ) {
+    const result = await this.requestPasswordResetCodeUseCase.execute(
+      requestPasswordResetDto,
+    );
+
+    return res.status(result.isSuccess ? 200 : (result.error?.statusCode || 500)).json(result);
+  }
+
+  @ApiOperation({ summary: 'Solicitar token de restablecimiento de contraseña' })
+  @ApiBody({ type: RequestPasswordResetDto })
+  @ApiOkResponse({
+    description: 'Token de restablecimiento enviado exitosamente',
+    type: AuthSuccessResponse
+  })
+  @ApiBadRequestResponse({
+    description: 'Email inválido',
+    type: AuthErrorResponse
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Error interno del servidor',
+    type: AuthErrorResponse
+  })
+  @Post('request-password-reset-token')
+  async requestPasswordResetToken(
+    @Body() requestPasswordResetDto: RequestPasswordResetDto,
+    @Res() res: Response,
+  ) {
+    const result = await this.requestPasswordResetTokenUseCase.execute(
+      requestPasswordResetDto,
+    );
+
+    return res.status(result.isSuccess ? 200 : (result.error?.statusCode || 500)).json(result);
+  }
+
+  @ApiOperation({ summary: 'Restablecer contraseña usando código' })
+  @ApiBody({ type: ResetPasswordByCodeDto })
+  @ApiOkResponse({
+    description: 'Contraseña restablecida exitosamente',
+    type: AuthSuccessResponse
+  })
+  @ApiBadRequestResponse({
+    description: 'Código inválido o nueva contraseña no válida',
+    type: AuthErrorResponse
+  })
+  @ApiResponse({
+    status: 410,
+    description: 'Código de restablecimiento expirado',
+    type: AuthErrorResponse
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Error interno del servidor',
+    type: AuthErrorResponse
+  })
+  @Post('reset-password-by-code')
+  async resetPasswordByCode(
+    @Body() resetPasswordDto: ResetPasswordByCodeDto,
+    @Res() res: Response,
+  ) {
+    const result = await this.resetPasswordByCodeUseCase.execute(
+      resetPasswordDto,
+    );
+
+    return res.status(result.isSuccess ? 200 : (result.error?.statusCode || 500)).json(result);
+  }
+
+  @ApiOperation({ summary: 'Restablecer contraseña usando token' })
+  @ApiBody({ type: ResetPasswordByTokenDto })
+  @ApiOkResponse({
+    description: 'Contraseña restablecida exitosamente',
+    type: AuthSuccessResponse
+  })
+  @ApiBadRequestResponse({
+    description: 'Token inválido o nueva contraseña no válida',
+    type: AuthErrorResponse
+  })
+  @ApiResponse({
+    status: 410,
+    description: 'Token de restablecimiento expirado',
+    type: AuthErrorResponse
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Error interno del servidor',
+    type: AuthErrorResponse
+  })
+  @Post('reset-password-by-token')
+  async resetPasswordByToken(
+    @Body() resetPasswordDto: ResetPasswordByTokenDto,
+    @Res() res: Response,
+  ) {
+    const result = await this.resetPasswordByTokenUseCase.execute(
+      resetPasswordDto,
+    );
+
+    return res.status(result.isSuccess ? 200 : (result.error?.statusCode || 500)).json(result);
+  }
+
+  // Legacy endpoint for backward compatibility
+  @ApiOperation({ summary: 'Solicitar restablecimiento de contraseña (legacy)' })
+  @ApiBody({ type: RequestPasswordResetDto })
+  @ApiOkResponse({
+    description: 'Email de restablecimiento enviado exitosamente',
+    type: AuthSuccessResponse
+  })
+  @ApiBadRequestResponse({
+    description: 'Email inválido',
+    type: AuthErrorResponse
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Error interno del servidor',
+    type: AuthErrorResponse
+  })
+  @Post('request-password-reset')
+  async requestPasswordReset(
+    @Body() requestPasswordResetDto: RequestPasswordResetDto,
+    @Res() res: Response,
+  ) {
+    // Por defecto usar el token para mantener compatibilidad
+    const result = await this.requestPasswordResetTokenUseCase.execute(
+      requestPasswordResetDto,
     );
 
     return res.status(result.isSuccess ? 200 : (result.error?.statusCode || 500)).json(result);

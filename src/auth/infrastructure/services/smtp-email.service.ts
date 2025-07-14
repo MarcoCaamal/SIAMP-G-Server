@@ -123,6 +123,104 @@ export class SmtpEmailService implements IEmailService {
       throw new Error('Failed to send verification email');
     }
   }
+  async sendPasswordResetCode(email: string, code: string): Promise<void> {
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || process.env.SMTP_USER,
+      to: email,
+      subject: 'SIAMP-G - Código de Restablecimiento de Contraseña',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #8EC5FC;">SIAMP-G</h2>
+          <h3>Restablece tu contraseña</h3>
+          
+          <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta.</p>
+          
+          <p>Tu código de restablecimiento es:</p>
+          
+          <div style="background-color: #fff3cd; border: 2px solid #dc3545; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0;">
+            <h1 style="font-size: 32px; letter-spacing: 8px; margin: 0; color: #721c24;">${code}</h1>
+          </div>
+          
+          <p>Ingresa este código en la aplicación para restablecer tu contraseña.</p>
+          
+          <p style="color: #666; font-size: 14px;">
+            <strong>Este código expirará en 15 minutos.</strong>
+          </p>
+          
+          <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+          
+          <p style="color: #888; font-size: 12px;">
+            Si no solicitaste restablecer tu contraseña, puedes ignorar este correo electrónico.
+          </p>
+          
+          <p style="color: #888; font-size: 12px;">
+            © 2025 SIAMP-G. Todos los derechos reservados.
+          </p>
+        </div>
+      `,
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      this.logger.log(`Password reset code sent to ${email}`);
+    } catch (error) {
+      this.logger.error(`Failed to send password reset code to ${email}:`, error);
+      throw new Error('Failed to send password reset code');
+    }
+  }
+
+  async sendPasswordResetToken(email: string, token: string): Promise<void> {
+    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
+    
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || process.env.SMTP_USER,
+      to: email,
+      subject: 'SIAMP-G - Restablece tu contraseña',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #8EC5FC;">SIAMP-G</h2>
+          <h3>Restablece tu contraseña</h3>
+          
+          <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta.</p>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${resetUrl}" 
+               style="background-color: #dc3545; color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
+              Restablecer Contraseña
+            </a>
+          </div>
+          
+          <p>O copia y pega este enlace en tu navegador:</p>
+          <p style="word-break: break-all; background-color: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace;">
+            ${resetUrl}
+          </p>
+          
+          <p style="color: #666; font-size: 14px;">
+            <strong>Este enlace expirará en 1 hora.</strong>
+          </p>
+          
+          <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+          
+          <p style="color: #888; font-size: 12px;">
+            Si no solicitaste restablecer tu contraseña, puedes ignorar este correo electrónico.
+          </p>
+          
+          <p style="color: #888; font-size: 12px;">
+            © 2025 SIAMP-G. Todos los derechos reservados.
+          </p>
+        </div>
+      `,
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      this.logger.log(`Password reset token sent to ${email}`);
+    } catch (error) {
+      this.logger.error(`Failed to send password reset token to ${email}:`, error);
+      throw new Error('Failed to send password reset token');
+    }
+  }
+
   async sendPasswordResetEmail(email: string, token: string): Promise<void> {
     const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
     

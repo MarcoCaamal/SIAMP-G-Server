@@ -3,6 +3,11 @@ export interface VerificationToken {
   expiresAt: Date;
 }
 
+export interface ResetToken {
+  token: string; // Can be token or code
+  expiresAt: Date;
+}
+
 export interface NotificationPreferences {
   email: boolean;
   push: boolean;
@@ -32,6 +37,7 @@ export class User {
     public readonly profilePicture: string,
     public readonly status: UserStatus,
     public readonly verificationToken: VerificationToken | null,
+    public readonly resetToken: ResetToken | null,
     public readonly failedLoginAttempts: number,
     public readonly lastLoginAt: Date | null,
     public readonly lastLoginDevice: string | null,
@@ -72,7 +78,8 @@ export class User {
       timezone,
       '',
       'pending',
-      null,
+      null, // verificationToken
+      null, // resetToken
       0,
       null,
       null,
@@ -110,6 +117,7 @@ export class User {
       this.profilePicture,
       this.status,
       this.verificationToken,
+      this.resetToken,
       attempts,
       this.lastLoginAt,
       this.lastLoginDevice,
@@ -131,6 +139,7 @@ export class User {
       this.profilePicture,
       this.status,
       this.verificationToken,
+      this.resetToken,
       0, // Reset failed attempts on successful login
       new Date(),
       device || this.lastLoginDevice,
@@ -152,6 +161,7 @@ export class User {
       this.profilePicture,
       'active',
       null, // Clear verification token
+      null, // Clear reset token  
       this.failedLoginAttempts,
       this.lastLoginAt,
       this.lastLoginDevice,
@@ -172,6 +182,51 @@ export class User {
       this.profilePicture,
       this.status,
       { token: tokenOrCode, expiresAt },
+      this.resetToken,
+      this.failedLoginAttempts,
+      this.lastLoginAt,
+      this.lastLoginDevice,
+      this.lastLoginLocation,
+      this.notificationPreferences,
+      this.accountType,
+      this.createdAt,
+      new Date(),
+    );
+  }
+
+  setResetToken(tokenOrCode: string, expiresAt: Date): User {
+    return new User(
+      this.id,
+      this.name,
+      this.email,
+      this.password,
+      this.timezone,
+      this.profilePicture,
+      this.status,
+      this.verificationToken,
+      { token: tokenOrCode, expiresAt }, // resetToken
+      this.failedLoginAttempts,
+      this.lastLoginAt,
+      this.lastLoginDevice,
+      this.lastLoginLocation,
+      this.notificationPreferences,
+      this.accountType,
+      this.createdAt,
+      new Date(),
+    );
+  }
+
+  clearResetToken(): User {
+    return new User(
+      this.id,
+      this.name,
+      this.email,
+      this.password,
+      this.timezone,
+      this.profilePicture,
+      this.status,
+      this.verificationToken,
+      null, // resetToken
       this.failedLoginAttempts,
       this.lastLoginAt,
       this.lastLoginDevice,
@@ -193,6 +248,7 @@ export class User {
       profilePicture !== undefined ? profilePicture : this.profilePicture,
       this.status,
       this.verificationToken,
+      this.resetToken,
       this.failedLoginAttempts,
       this.lastLoginAt,
       this.lastLoginDevice,
@@ -258,6 +314,7 @@ export class User {
       this.profilePicture,
       this.status,
       this.verificationToken,
+      this.resetToken,
       this.failedLoginAttempts,
       this.lastLoginAt,
       this.lastLoginDevice,
@@ -279,6 +336,7 @@ export class User {
       this.profilePicture,
       this.status,
       this.verificationToken,
+      null, // Clear reset token after password change
       0, // Reset failed attempts after password change
       this.lastLoginAt,
       this.lastLoginDevice,

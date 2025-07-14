@@ -14,7 +14,20 @@ import {
   SendVerificationTokenUseCase,
   SendVerificationCodeUseCase,
   LogoutUseCase
-} from './application/use-cases'
+} from './application/use-cases';
+
+import {
+  RequestPasswordResetCodeUseCase
+} from './application/use-cases/request-password-reset-code.use-case';
+import {
+  RequestPasswordResetTokenUseCase
+} from './application/use-cases/request-password-reset-token.use-case';
+import {
+  ResetPasswordByCodeUseCase
+} from './application/use-cases/reset-password-by-code.use-case';
+import {
+  ResetPasswordByTokenUseCase
+} from './application/use-cases/reset-password-by-token.use-case';
 
 // Services
 import { 
@@ -64,7 +77,11 @@ import { AuthController } from './presentation/controllers/auth.controller';
     VerifyEmailByTokenUseCase,
     SendVerificationTokenUseCase,
     SendVerificationCodeUseCase,
-    LogoutUseCase,    // Services
+    LogoutUseCase,
+    RequestPasswordResetCodeUseCase,
+    RequestPasswordResetTokenUseCase,
+    ResetPasswordByCodeUseCase,
+    ResetPasswordByTokenUseCase,    // Services
     {
       provide: HASHING_SERVICE,
       useClass: BcryptHashingService,

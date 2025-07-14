@@ -121,6 +121,54 @@ export class AuthErrors {
     statusCode: 400,
   };
 
+  static readonly INVALID_RESET_TOKEN: ErrorResult = {
+    code: 'AUTH_019',
+    message: 'Invalid or expired password reset token',
+    statusCode: 400,
+  };
+
+  static readonly RESET_TOKEN_EXPIRED: ErrorResult = {
+    code: 'AUTH_020',
+    message: 'Password reset token has expired',
+    statusCode: 410,
+  };
+
+  static readonly INVALID_RESET_CODE: ErrorResult = {
+    code: 'AUTH_021',
+    message: 'Invalid or expired password reset code',
+    statusCode: 400,
+  };
+
+  static readonly RESET_CODE_EXPIRED: ErrorResult = {
+    code: 'AUTH_022',
+    message: 'Password reset code has expired',
+    statusCode: 410,
+  };
+
+  static readonly RESET_EMAIL_ERROR: ErrorResult = {
+    code: 'AUTH_023',
+    message: 'Failed to send password reset email',
+    statusCode: 500,
+  };
+
+  static readonly PASSWORD_RESET_SUCCESS: ErrorResult = {
+    code: 'AUTH_024',
+    message: 'Password reset successfully',
+    statusCode: 200,
+  };
+
+  static readonly RESET_TOKEN_ALREADY_USED: ErrorResult = {
+    code: 'AUTH_025',
+    message: 'Password reset token has already been used',
+    statusCode: 400,
+  };
+
+  static readonly NO_RESET_TOKEN: ErrorResult = {
+    code: 'AUTH_026',
+    message: 'No active password reset token found',
+    statusCode: 400,
+  };
+
   static internalError(message: string): ErrorResult {
     return {
       code: 'AUTH_500',
