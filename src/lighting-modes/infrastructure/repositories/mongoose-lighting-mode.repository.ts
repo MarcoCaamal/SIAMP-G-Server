@@ -13,13 +13,13 @@ export class MongooseLightingModeRepository implements ILightingModeRepository {
   ) {}
 
   async findById(id: string): Promise<LightingMode | null> {
-    const document = await this.lightingModeModel.findById(id).exec();
+    const document = await this.lightingModeModel.findById(new Types.ObjectId(id)).exec();
     return document ? this.mapToEntity(document) : null;
   }
 
   async findByUserId(userId: string): Promise<LightingMode[]> {
     const documents = await this.lightingModeModel
-      .find({ userId, category: 'user' })
+      .find({ userId: new Types.ObjectId(userId), category: 'user' })
       .exec();
     return documents.map(doc => this.mapToEntity(doc));
   }
@@ -40,7 +40,7 @@ export class MongooseLightingModeRepository implements ILightingModeRepository {
 
   async findByUserIdAndHabitatType(userId: string, habitatType: string): Promise<LightingMode[]> {
     const documents = await this.lightingModeModel
-      .find({ userId, habitatType, category: 'user' })
+      .find({ userId: new Types.ObjectId(userId), habitatType, category: 'user' })
       .exec();
     return documents.map(doc => this.mapToEntity(doc));
   }
@@ -60,7 +60,8 @@ export class MongooseLightingModeRepository implements ILightingModeRepository {
   }
 
   async save(lightingMode: LightingMode): Promise<LightingMode> {
-    const document = new this.lightingModeModel(this.mapToDocument(lightingMode));
+    const documentData = this.mapToDocument(lightingMode);
+    const document = new this.lightingModeModel(documentData);
     const savedDocument = await document.save();
     return this.mapToEntity(savedDocument);
   }
@@ -68,7 +69,7 @@ export class MongooseLightingModeRepository implements ILightingModeRepository {
   async update(lightingMode: LightingMode): Promise<LightingMode> {
     const updatedDocument = await this.lightingModeModel
       .findByIdAndUpdate(
-        lightingMode.id,
+        new Types.ObjectId(lightingMode.id),
         this.mapToDocument(lightingMode),
         { new: true }
       )
@@ -82,7 +83,7 @@ export class MongooseLightingModeRepository implements ILightingModeRepository {
   }
 
   async delete(id: string): Promise<void> {
-    await this.lightingModeModel.findByIdAndDelete(id).exec();
+    await this.lightingModeModel.findByIdAndDelete(new Types.ObjectId(id)).exec();
   }
 
   async existsByShareCode(shareCode: string): Promise<boolean> {

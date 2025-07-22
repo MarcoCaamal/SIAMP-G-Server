@@ -27,7 +27,6 @@ export class GetUserLightingModesUseCase {
 
       // Combine user modes and system modes
       const allModes = [...userModes, ...systemModes];
-      
       return Result.ok(allModes);
     } catch (error) {
       return Result.fail(
