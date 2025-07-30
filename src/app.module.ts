@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { DevicesModule } from './devices/devices.module';
 import { LightingModesModule } from './lighting-modes/lighting-modes.module';
+import { SchedulesModule } from './schedules/schedules.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { LightingModesModule } from './lighting-modes/lighting-modes.module';
     UsersModule,
     DevicesModule,
     LightingModesModule,
+    SchedulesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

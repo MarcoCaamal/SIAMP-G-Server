@@ -43,10 +43,10 @@ export class RecurrenceConfigSchema {
   type: string;
 
   @Prop({ type: DaysOfWeekSchema, default: null })
-  daysOfWeek: DaysOfWeekSchema;
+  daysOfWeek: DaysOfWeekSchema | null;
 
-  @Prop({ default: null })
-  endDate: Date;
+  @Prop({ type: Date, default: null })
+  endDate: Date | null;
 }
 
 @Schema({ collection: 'schedules', timestamps: true })
@@ -78,11 +78,11 @@ export class ScheduleDocument extends Document {
   @Prop({ type: RecurrenceConfigSchema, required: true })
   recurrence: RecurrenceConfigSchema;
 
-  @Prop({ default: null })
-  lastExecutedAt: Date;
+  @Prop({ type: Date, default: null })
+  lastExecutedAt: Date | null;
 
-  @Prop({ default: null })
-  nextExecutionAt: Date;
+  @Prop({ type: Date, default: null })
+  nextExecutionAt: Date | null;
 
   @Prop({ default: 0 })
   executionCount: number;
