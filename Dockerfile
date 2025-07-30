@@ -17,7 +17,7 @@ FROM base AS development
 RUN npm ci --verbose || npm install --verbose
 COPY . .
 EXPOSE 3000
-CMD ["npm", "run", "start:dev"]
+CMD ["npm", "run", "start:debug"]
 
 # Build stage
 FROM base AS build

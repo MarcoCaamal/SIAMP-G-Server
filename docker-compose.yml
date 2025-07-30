@@ -25,6 +25,7 @@ services:
     restart: unless-stopped
     ports:
       - "${PORT:-3000}:${PORT:-3000}"
+      - "9229:9229"
     environment:
       - NODE_ENV=development
       - MONGODB_URI=mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-admin123}@mongodb:27017/${MONGO_DATABASE:-siampDb}?authSource=admin
@@ -53,7 +54,7 @@ services:
       - mosquitto
     networks:
       - siamp-network
-    command: npm run start:dev
+    command: npm run start:debug
   # MongoDB Admin Interface (Optional)
   mongo-express:
     image: mongo-express:1.0.2
