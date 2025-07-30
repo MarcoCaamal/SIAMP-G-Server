@@ -11,7 +11,10 @@ export class Password {
   }
 
   private validate(password: string): void {
-    if (!password || password.length < 8) {
+    if(!password) {
+      throw new Error('Password cannot be empty');
+    }
+    if (password.length < 8) {
       throw new Error('Password must be at least 8 characters long');
     }
 
