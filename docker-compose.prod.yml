@@ -13,7 +13,6 @@ services:  # MongoDB Database
       - mongodb_data:/data/db
     networks:
       - siamp-network
-      - proxy-net
   nestjs-app:
     build:
       context: ./
@@ -48,7 +47,6 @@ services:  # MongoDB Database
       - mosquitto
     networks:
       - siamp-network
-      - proxy-net
       
   # Eclipse Mosquitto MQTT Broker
   mosquitto:
@@ -72,7 +70,6 @@ services:  # MongoDB Database
       - ./mosquitto/init-mosquitto.sh:/init-mosquitto.sh:ro
     networks:
       - siamp-network
-      - proxy-net
     command: sh /init-mosquitto.sh
 
 volumes:
@@ -82,5 +79,3 @@ volumes:
 networks:
   siamp-network:
     driver: bridge
-  proxy-net:
-    external: true
