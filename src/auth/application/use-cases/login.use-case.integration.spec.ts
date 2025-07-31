@@ -142,6 +142,8 @@ const createUserTestData = async (testModule: TestingModule) => {
     // Create a test user with correct data
     await userModel.create({
         name: 'Test User',
+        firstLastName: 'Test',
+        secondLastName: 'User',
         email: 'test@example.com',
         password: passwordHash,
         timezone: 'UTC',
@@ -151,6 +153,8 @@ const createUserTestData = async (testModule: TestingModule) => {
     // Create a pending user
     await userModel.create({
         name: 'Pending User',
+        firstLastName: 'Pending',
+        secondLastName: 'User',
         email: 'pending@example.com',
         password: passwordHash,
         timezone: 'UTC',
@@ -160,6 +164,8 @@ const createUserTestData = async (testModule: TestingModule) => {
     // Create a blocked user
     await userModel.create({
         name: 'Blocked User',
+        firstLastName: 'Blocked',
+        secondLastName: 'User',
         email: 'blocked@example.com',
         password: passwordHash,
         timezone: 'UTC',
@@ -169,6 +175,8 @@ const createUserTestData = async (testModule: TestingModule) => {
     // Create a user with a lot of failed login attempts
     await userModel.create({
         name: 'Failed Login User',
+        firstLastName: 'Failed',
+        secondLastName: 'User',
         email: 'failed@example.com',
         password: passwordHash,
         timezone: 'UTC',

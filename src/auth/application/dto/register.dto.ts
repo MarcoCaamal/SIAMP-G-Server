@@ -10,6 +10,20 @@ export class RegisterDto {
   name: string;
 
   @ApiProperty({
+    description: 'User\'s first last name',
+    example: 'Doe'
+  })
+  @IsNotEmpty()
+  firstLastName: string;
+
+  @ApiProperty({
+    description: 'User\'s second last name',
+    example: 'Smith'
+  })
+  @IsNotEmpty()
+  secondLastName: string;
+
+  @ApiProperty({
     description: 'User\'s email address',
     example: 'user@example.com'
   })

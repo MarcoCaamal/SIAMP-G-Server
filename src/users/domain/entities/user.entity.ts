@@ -31,6 +31,8 @@ export class User {
   constructor(
     public readonly id: string,
     public readonly name: string,
+    public readonly firstLastName: string,
+    public readonly secondLastName: string,
     public readonly email: string,
     public readonly password: string,
     public readonly timezone: string,
@@ -50,6 +52,8 @@ export class User {
 
   static create(
     name: string,
+    firstLastName: string,
+    secondLastName: string,
     email: string,
     hashedPassword: string,
     timezone: string = 'UTC',
@@ -73,6 +77,8 @@ export class User {
     return new User(
       '', // Will be set by repository
       name,
+      firstLastName,
+      secondLastName,
       email,
       hashedPassword,
       timezone,
@@ -111,6 +117,8 @@ export class User {
     return new User(
       this.id,
       this.name,
+      this.firstLastName,
+      this.secondLastName,
       this.email,
       this.password,
       this.timezone,
@@ -133,6 +141,8 @@ export class User {
     return new User(
       this.id,
       this.name,
+      this.firstLastName,
+      this.secondLastName,
       this.email,
       this.password,
       this.timezone,
@@ -155,6 +165,8 @@ export class User {
     return new User(
       this.id,
       this.name,
+      this.firstLastName,
+      this.secondLastName,
       this.email,
       this.password,
       this.timezone,
@@ -176,6 +188,8 @@ export class User {
     return new User(
       this.id,
       this.name,
+      this.firstLastName,
+      this.secondLastName,
       this.email,
       this.password,
       this.timezone,
@@ -198,6 +212,8 @@ export class User {
     return new User(
       this.id,
       this.name,
+      this.firstLastName,
+      this.secondLastName,
       this.email,
       this.password,
       this.timezone,
@@ -220,6 +236,8 @@ export class User {
     return new User(
       this.id,
       this.name,
+      this.firstLastName,
+      this.secondLastName,
       this.email,
       this.password,
       this.timezone,
@@ -238,10 +256,12 @@ export class User {
     );
   }
 
-  updateProfile(name?: string, timezone?: string, profilePicture?: string): User {
+  updateProfile(name?: string, firstLastName?: string, secondLastName?: string, timezone?: string, profilePicture?: string): User {
     return new User(
       this.id,
       name !== undefined ? name : this.name,
+      firstLastName !== undefined ? firstLastName : this.firstLastName,
+      secondLastName !== undefined ? secondLastName : this.secondLastName,
       this.email,
       this.password,
       timezone !== undefined ? timezone : this.timezone,
@@ -308,6 +328,8 @@ export class User {
     return new User(
       this.id,
       this.name,
+      this.firstLastName,
+      this.secondLastName,
       this.email,
       this.password,
       this.timezone,
@@ -330,6 +352,8 @@ export class User {
     return new User(
       this.id,
       this.name,
+      this.firstLastName,
+      this.secondLastName,
       this.email,
       newHashedPassword,
       this.timezone,

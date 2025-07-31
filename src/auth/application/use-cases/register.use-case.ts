@@ -65,6 +65,8 @@ export class RegisterUseCase {
       // Create user
       const user = User.create(
         registerDto.name,
+        registerDto.firstLastName,
+        registerDto.secondLastName,
         email.value,
         hashedPassword,
         registerDto.timezone,

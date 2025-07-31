@@ -58,9 +58,12 @@ const createTestData = async (testingModule: TestingModule) => {
 
 
     const user: User = User.create(
-        'test-user-id',
+        'Name',
+        'Test',
+        'User',
         'test@example.com',
         'password',
+        'UTC',
     );
 
     const userSaved = await authRepository.saveUser(user.activate());

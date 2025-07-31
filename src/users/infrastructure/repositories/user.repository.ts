@@ -132,6 +132,8 @@ export class UserRepository implements IUserRepository {
     return new User(
       String(userDoc._id), // ✅ Conversión segura usando String()
       userDoc.name,
+      userDoc.firstLastName,
+      userDoc.secondLastName,
       userDoc.email,
       userDoc.password,
       userDoc.timezone,
@@ -154,6 +156,8 @@ export class UserRepository implements IUserRepository {
     return {
       name: user.name,
       email: user.email,
+      firstLastName: user.firstLastName,
+      secondLastName: user.secondLastName,
       password: user.password,
       timezone: user.timezone,
       profilePicture: user.profilePicture,
