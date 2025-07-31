@@ -1,47 +1,25 @@
 import { TestingModule, Test } from "@nestjs/testing";
 import { getModelToken, MongooseModule } from "@nestjs/mongoose";
 
-import { MongoMemoryServer } from "mongodb-memory-server";
 import { Model } from "mongoose";
 
 import { LogoutUseCase } from "./logout.use-case";
 import { RefreshTokenDocument, RefreshTokenSchema } from "../../infrastructure/schemas/refresh-token.schema";
-import { REFRESH_TOKEN_REPOSITORY } from "../../domain/repositories/refresh-token.repository.interface";
-import { RefreshTokenRepository } from "../../infrastructure/repositories/refresh-token.repository";
+import { setUpAuthTestingModule, tearDownAuthTestingModule } from "../../testing/configure-auth-module";
 
 
 
 describe('Logout Use Case', () => {
-    let mongodb: MongoMemoryServer;
     let testModule: TestingModule;
     let logoutUseCase: LogoutUseCase;
 
     beforeAll(async () => {
-        mongodb = await MongoMemoryServer.create();
-        testModule = await Test.createTestingModule({
-            imports: [
-                MongooseModule.forRoot(mongodb.getUri()),
-                MongooseModule.forFeature([
-                    { name: RefreshTokenDocument.name, schema: RefreshTokenSchema },
-                ]),
-            ],
-            providers: [
-                LogoutUseCase,
-                {
-                    provide: REFRESH_TOKEN_REPOSITORY,
-                    useClass: RefreshTokenRepository,
-                },
-            ],
-        }).compile();
-
+        testModule = await setUpAuthTestingModule();
         logoutUseCase = testModule.get<LogoutUseCase>(LogoutUseCase);
-        await createTestData(testModule);
     });
 
     afterAll(async () => {
-        await dropUserTestData(testModule);
-        await mongodb.stop();
-        await testModule.close();
+        await tearDownAuthTestingModule();
     });
 
     it('should log out the user', async () => {

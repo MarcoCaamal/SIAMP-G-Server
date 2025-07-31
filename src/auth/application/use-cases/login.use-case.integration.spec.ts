@@ -1,76 +1,27 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { MongooseModule, getModelToken } from '@nestjs/mongoose';
-import { JwtModule } from '@nestjs/jwt/dist/jwt.module';
+import { TestingModule } from '@nestjs/testing';
+import { getModelToken } from '@nestjs/mongoose';
 
 import { Model } from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 
-import { LoginUseCase } from './login.use-case';
-import { UserDocument, UserSchema } from '../../../users/infrastructure/schemas/user.schema';
-import { USER_REPOSITORY } from '../../../users/domain/repositories/user.repository.interface';
-import { UserRepository } from '../../../users/infrastructure/repositories/user.repository';
-import { AUTH_REPOSITORY } from '../../domain/repositories/auth.repository.interface';
-import { AuthRepository } from '../../infrastructure/repositories/auth.repository';
-import { HASHING_SERVICE, JWT_SERVICE } from '../interfaces';
-import { BcryptHashingService, NestJwtService } from '../../infrastructure/services';
-import { REFRESH_TOKEN_REPOSITORY } from '../../domain/repositories/refresh-token.repository.interface';
-import { RefreshTokenRepository } from '../../infrastructure/repositories/refresh-token.repository';
-import { RefreshTokenDocument, RefreshTokenSchema } from '../../infrastructure/schemas/refresh-token.schema';
 import { LoginDto } from '../dto/login.dto';
 import { AuthErrors } from '../../domain/errors/auth.errors';
+import { setUpAuthTestingModule, tearDownAuthTestingModule } from '../../testing/configure-auth-module';
+import { HASHING_SERVICE } from '../interfaces';
+import { UserDocument } from '../../../users/infrastructure/schemas/user.schema';
+import { LoginUseCase } from './login.use-case';
 
 describe('Login Use Case', () => { 
-    let mongodb: MongoMemoryServer;
-    let loginUseCase: LoginUseCase;
     let testModule: TestingModule;
+    let loginUseCase: LoginUseCase;
 
     beforeAll(async () => {
-        mongodb = await MongoMemoryServer.create();
-        testModule = await Test.createTestingModule({
-            imports: [
-                MongooseModule.forRoot(mongodb.getUri()),
-                MongooseModule.forFeature([
-                    { name: UserDocument.name, schema: UserSchema },
-                ]),
-                MongooseModule.forFeature([
-                    { name: RefreshTokenDocument.name, schema: RefreshTokenSchema },
-                ]),
-                JwtModule.register({
-                    global: true,
-                }),
-            ],
-            providers: [
-                LoginUseCase,
-                {
-                    provide: USER_REPOSITORY,
-                    useClass: UserRepository,
-                },
-                {
-                    provide: AUTH_REPOSITORY,
-                    useClass: AuthRepository,
-                },
-                {
-                    provide: HASHING_SERVICE,
-                    useClass: BcryptHashingService,
-                },
-                {
-                    provide: JWT_SERVICE,
-                    useClass: NestJwtService,
-                },
-                {
-                    provide: REFRESH_TOKEN_REPOSITORY,
-                    useClass: RefreshTokenRepository,
-                },
-            ],
-        }).compile();
-        loginUseCase = testModule.get<LoginUseCase>(LoginUseCase);
+        testModule = await setUpAuthTestingModule();
         await createUserTestData(testModule);
+        loginUseCase = testModule.get(LoginUseCase);
     });
 
     afterAll(async () => {
-        await dropUserTestData(testModule);
-        await mongodb.stop();
-        await testModule.close();
+        await tearDownAuthTestingModule();
     });
 
     it('should be defined', () => {
@@ -225,9 +176,4 @@ const createUserTestData = async (testModule: TestingModule) => {
         accountType: 'free',
         failedLoginAttempts: 5
     });
-}
-
-const dropUserTestData = async (testModule: TestingModule) => {
-    const userModel: Model<UserDocument> = testModule.get<Model<UserDocument>>(getModelToken(UserDocument.name));
-    await userModel.deleteMany({});
 }
