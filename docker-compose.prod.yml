@@ -20,6 +20,8 @@ services:  # MongoDB Database
       target: production
     container_name: siamp-nestjs-prod
     restart: always
+    volumes:
+      - ./uploads:/app/uploads
     ports:
       - "${PORT}:3000"
     environment:
@@ -79,3 +81,5 @@ volumes:
 networks:
   siamp-network:
     driver: bridge
+  proxy-network:
+    external: true

@@ -4,6 +4,10 @@ FROM node:22-alpine AS base
 # Set working directory
 WORKDIR /app
 
+RUN mkdir -p /app/uploads && \
+    chown -R node:node /app/uploads && \
+    chmod -R 755 /app/uploads
+
 # Copy package files
 COPY package*.json ./
 COPY tsconfig*.json ./
