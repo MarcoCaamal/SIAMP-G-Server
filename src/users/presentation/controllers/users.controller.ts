@@ -144,66 +144,66 @@ export class UsersController {
     return res.status(result.isSuccess ? 200 : (result.error?.statusCode || 500)).json(result);
   }
 
-  // @ApiOperation({ summary: 'Subir foto de perfil' })
-  // @ApiConsumes('multipart/form-data')
-  // @ApiOkResponse({
-  //   description: 'Foto de perfil subida exitosamente'
-  // })
-  // @ApiUnauthorizedResponse({
-  //   description: 'Usuario no autenticado',
-  //   type: UserErrorResponse
-  // })
-  // @ApiBadRequestResponse({
-  //   description: 'Archivo inválido (formato o tamaño)',
-  //   type: UserErrorResponse
-  // })
-  // @ApiResponse({
-  //   status: 500,
-  //   description: 'Error interno del servidor',
-  //   type: UserErrorResponse
-  // })
-  // @Post('profile/picture')
-  // @UseInterceptors(FileInterceptor('file'))
-  // async uploadProfilePicture(
-  //   @UploadedFile() file: Express.Multer.File,
-  //   @Req() req: Request,
-  //   @Res() res: Response,
-  // ) {
-  //   if (!file) {
-  //     return res.status(400).json({
-  //       code: 'NO_FILE',
-  //       message: 'No se ha proporcionado ningún archivo',
-  //       statusCode: 400
-  //     });
-  //   }
+  @ApiOperation({ summary: 'Subir foto de perfil' })
+  @ApiConsumes('multipart/form-data')
+  @ApiOkResponse({
+    description: 'Foto de perfil subida exitosamente'
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Usuario no autenticado',
+    type: UserErrorResponse
+  })
+  @ApiBadRequestResponse({
+    description: 'Archivo inválido (formato o tamaño)',
+    type: UserErrorResponse
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Error interno del servidor',
+    type: UserErrorResponse
+  })
+  @Post('profile/picture')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadProfilePicture(
+    @UploadedFile() file: Express.Multer.File,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    if (!file) {
+      return res.status(400).json({
+        code: 'NO_FILE',
+        message: 'No se ha proporcionado ningún archivo',
+        statusCode: 400
+      });
+    }
 
-  //   const userId = (req as any).user?.id || '';
-  //   const result = await this.uploadProfilePictureUseCase.execute(userId, file);
+    const userId = (req as any).user?.id || '';
+    const result = await this.uploadProfilePictureUseCase.execute(userId, file);
 
-  //   return res.status(result.isSuccess ? 200 : (result.error?.statusCode || 500)).json(result);
-  // }
+    return res.status(result.isSuccess ? 200 : (result.error?.statusCode || 500)).json(result);
+  }
 
-  // @ApiOperation({ summary: 'Eliminar foto de perfil' })
-  // @ApiOkResponse({
-  //   description: 'Foto de perfil eliminada exitosamente'
-  // })
-  // @ApiUnauthorizedResponse({
-  //   description: 'Usuario no autenticado',
-  //   type: UserErrorResponse
-  // })
-  // @ApiResponse({
-  //   status: 500,
-  //   description: 'Error interno del servidor',
-  //   type: UserErrorResponse
-  // })
-  // @Delete('profile/picture')
-  // async deleteProfilePicture(
-  //   @Req() req: Request,
-  //   @Res() res: Response,
-  // ) {
-  //   const userId = (req as any).user?.id || '';
-  //   const result = await this.deleteProfilePictureUseCase.execute(userId);
+  @ApiOperation({ summary: 'Eliminar foto de perfil' })
+  @ApiOkResponse({
+    description: 'Foto de perfil eliminada exitosamente'
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Usuario no autenticado',
+    type: UserErrorResponse
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Error interno del servidor',
+    type: UserErrorResponse
+  })
+  @Delete('profile/picture')
+  async deleteProfilePicture(
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const userId = (req as any).user?.id || '';
+    const result = await this.deleteProfilePictureUseCase.execute(userId);
 
-  //   return res.status(result.isSuccess ? 200 : (result.error?.statusCode || 500)).json(result);
-  // }
+    return res.status(result.isSuccess ? 200 : (result.error?.statusCode || 500)).json(result);
+  }
 }

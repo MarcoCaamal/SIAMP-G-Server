@@ -34,7 +34,7 @@ import { ProfilePictureService } from './application/services/profile-picture.se
     ChangePasswordUseCase,
     UploadProfilePictureUseCase,
     DeleteProfilePictureUseCase2,
-    // ProfilePictureService,
+    ProfilePictureService,
   ],
   exports: [USER_REPOSITORY],
 })
