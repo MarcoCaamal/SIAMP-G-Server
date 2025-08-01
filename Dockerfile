@@ -27,7 +27,7 @@ COPY . .
 EXPOSE 3000
 CMD ["npm", "run", "start:debug"]
 
-RUN chown -R node.node /app
+RUN chown -R node:node /app
 
 # Build stage
 FROM base AS build
