@@ -4,7 +4,7 @@ FROM node:alpine AS base
 # Set working directory
 WORKDIR /app
 
-RUN chown -R node.node /app
+RUN chown -R node:node /app
 
 RUN mkdir -p /app/uploads && \
     mkdir -p /app/uploads/profile-pictures && \
