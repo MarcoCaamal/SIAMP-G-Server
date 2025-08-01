@@ -5,6 +5,8 @@ FROM node:22-alpine AS base
 WORKDIR /app
 
 RUN mkdir -p /app/uploads && \
+    mkdir -p /app/uploads/profile-pictures && \
+    mkdir -p /app/uploads/attachments && \
     chown -R node:node /app/uploads && \
     chmod -R 755 /app/uploads
 
