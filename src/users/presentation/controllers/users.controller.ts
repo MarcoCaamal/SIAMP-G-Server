@@ -1,10 +1,13 @@
-import { Body, Controller, Get, Put, Post, Req, Res, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse, ApiBody, ApiOkResponse, ApiUnauthorizedResponse, ApiBadRequestResponse } from '@nestjs/swagger';
+import { Body, Controller, Get, Put, Post, Req, Res, UseGuards, UseInterceptors, UploadedFile, Delete } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse, ApiBody, ApiOkResponse, ApiUnauthorizedResponse, ApiBadRequestResponse, ApiConsumes } from '@nestjs/swagger';
 import { Request, Response } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { GetUserProfileUseCase } from '../../application/use-cases/get-user-profile.use-case';
 import { UpdateUserProfileUseCase } from '../../application/use-cases/update-user-profile.use-case';
 import { UpdateNotificationPreferencesUseCase } from '../../application/use-cases/update-notification-preferences.use-case';
 import { ChangePasswordUseCase } from '../../application/use-cases/change-password.use-case';
+import { UploadProfilePictureUseCase } from '../../application/use-cases/upload-profile-picture.use-case';
+import { DeleteProfilePictureUseCase2 } from '../../application/use-cases/delete-profile-picture-simple.use-case';
 import { UpdateUserProfileDto, UpdateNotificationPreferencesDto, ChangePasswordDto } from '../../application/dto/get-user-profile.dto';
 import { JwtAuthGuard } from '../../../auth/presentation/guards/jwt-auth.guard';
 import { UserSuccessResponse, UserErrorResponse } from '../../application/dto/user-swagger.dto';
@@ -19,6 +22,8 @@ export class UsersController {
     private readonly updateUserProfileUseCase: UpdateUserProfileUseCase,
     private readonly updateNotificationPreferencesUseCase: UpdateNotificationPreferencesUseCase,
     private readonly changePasswordUseCase: ChangePasswordUseCase,
+    private readonly uploadProfilePictureUseCase: UploadProfilePictureUseCase,
+    private readonly deleteProfilePictureUseCase: DeleteProfilePictureUseCase2,
   ) { }
 
   @ApiOperation({ summary: 'Obtener perfil del usuario actual' })
@@ -135,6 +140,69 @@ export class UsersController {
     const userId = (req as any).user?.id || '';
 
     const result = await this.changePasswordUseCase.execute(userId, changePasswordDto);
+
+    return res.status(result.isSuccess ? 200 : (result.error?.statusCode || 500)).json(result);
+  }
+
+  @ApiOperation({ summary: 'Subir foto de perfil' })
+  @ApiConsumes('multipart/form-data')
+  @ApiOkResponse({
+    description: 'Foto de perfil subida exitosamente'
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Usuario no autenticado',
+    type: UserErrorResponse
+  })
+  @ApiBadRequestResponse({
+    description: 'Archivo inválido (formato o tamaño)',
+    type: UserErrorResponse
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Error interno del servidor',
+    type: UserErrorResponse
+  })
+  @Post('profile/picture')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadProfilePicture(
+    @UploadedFile() file: Express.Multer.File,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    if (!file) {
+      return res.status(400).json({
+        code: 'NO_FILE',
+        message: 'No se ha proporcionado ningún archivo',
+        statusCode: 400
+      });
+    }
+
+    const userId = (req as any).user?.id || '';
+    const result = await this.uploadProfilePictureUseCase.execute(userId, file);
+
+    return res.status(result.isSuccess ? 200 : (result.error?.statusCode || 500)).json(result);
+  }
+
+  @ApiOperation({ summary: 'Eliminar foto de perfil' })
+  @ApiOkResponse({
+    description: 'Foto de perfil eliminada exitosamente'
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Usuario no autenticado',
+    type: UserErrorResponse
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Error interno del servidor',
+    type: UserErrorResponse
+  })
+  @Delete('profile/picture')
+  async deleteProfilePicture(
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const userId = (req as any).user?.id || '';
+    const result = await this.deleteProfilePictureUseCase.execute(userId);
 
     return res.status(result.isSuccess ? 200 : (result.error?.statusCode || 500)).json(result);
   }

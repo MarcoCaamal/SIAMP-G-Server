@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsEmpty, IsNotEmpty, IsOptional, IsString, IsStrongPassword } from 'class-validator';
 
 export class GetUserProfileDto {
   @ApiProperty({
@@ -14,21 +15,32 @@ export class UpdateUserProfileDto {
     example: 'Marco Caamal',
     required: false
   })
+  @IsNotEmpty()
   name?: string;
+
+  @ApiProperty({
+    description: 'Primer apellido del usuario',
+    example: 'Caamal',
+    required: false
+  })
+  @IsNotEmpty()
+  firstLastName?: string;
+
+  @ApiProperty({
+    description: 'Segundo apellido del usuario',
+    example: 'Gonzalez',
+    required: false
+  })
+  @IsNotEmpty()
+  secondLastName?: string;
 
   @ApiProperty({
     description: 'Zona horaria del usuario',
     example: 'America/Mexico_City',
     required: false
   })
+  @IsNotEmpty()
   timezone?: string;
-
-  @ApiProperty({
-    description: 'URL de la foto de perfil',
-    example: 'https://example.com/profiles/user123.jpg',
-    required: false
-  })
-  profilePicture?: string;
 }
 
 export class UpdateNotificationPreferencesDto {
@@ -37,6 +49,7 @@ export class UpdateNotificationPreferencesDto {
     example: true,
     required: false
   })
+  @IsOptional()
   email?: boolean;
 
   @ApiProperty({
@@ -44,7 +57,10 @@ export class UpdateNotificationPreferencesDto {
     example: true,
     required: false
   })
-  push?: boolean;  @ApiProperty({
+  @IsOptional()
+  push?: boolean;
+
+  @ApiProperty({
     description: 'Configuración de horas silenciosas',
     required: false,
     example: {
@@ -54,11 +70,13 @@ export class UpdateNotificationPreferencesDto {
     },
     nullable: true
   })
+  @IsOptional()
   silentHours?: {
     enabled?: boolean;
     start?: string;
     end?: string;
-  };  @ApiProperty({
+  };
+  @ApiProperty({
     description: 'Tipos de eventos para notificaciones',
     required: false,
     example: {
@@ -69,6 +87,8 @@ export class UpdateNotificationPreferencesDto {
     },
     nullable: true
   })
+  @IsOptional()
+  @IsString()
   eventTypes?: {
     deviceConnection?: boolean;
     deviceDisconnection?: boolean;
@@ -82,11 +102,22 @@ export class ChangePasswordDto {
     description: 'Contraseña actual del usuario',
     example: 'CurrentP@ssw0rd'
   })
+  @IsString()
+  @IsNotEmpty()
   currentPassword: string;
 
   @ApiProperty({
     description: 'Nueva contraseña del usuario',
     example: 'NewStr0ngP@ssw0rd'
+  })
+  @IsString()
+  @IsNotEmpty()
+  @IsStrongPassword({
+    minLength: 8,
+    minUppercase: 1,
+    minLowercase: 1,
+    minNumbers: 1,
+    minSymbols: 1
   })
   newPassword: string;
 }

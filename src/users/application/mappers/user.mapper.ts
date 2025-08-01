@@ -6,6 +6,8 @@ export class UserMapper {
     return new UserProfileResponseDto(
       user.id,
       user.name,
+      user.firstLastName,
+      user.secondLastName,
       user.email,
       user.timezone,
       user.profilePicture,

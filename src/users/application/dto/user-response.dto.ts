@@ -1,6 +1,8 @@
 export class UserProfileResponseDto {
   id: string;
   name: string;
+  firstLastName: string;
+  secondLastName: string;
   email: string;
   timezone: string;
   profilePicture: string;
@@ -28,6 +30,8 @@ export class UserProfileResponseDto {
   constructor(
     id: string,
     name: string,
+    firstLastName: string,
+    secondLastName: string,
     email: string,
     timezone: string,
     profilePicture: string,
@@ -40,6 +44,8 @@ export class UserProfileResponseDto {
   ) {
     this.id = id;
     this.name = name;
+    this.firstLastName = firstLastName;
+    this.secondLastName = secondLastName;
     this.email = email;
     this.timezone = timezone;
     this.profilePicture = profilePicture;

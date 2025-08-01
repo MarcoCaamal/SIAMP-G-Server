@@ -39,10 +39,12 @@ export class UpdateUserProfileUseCase {
       // Actualizar solo los campos proporcionados
       const updatedUser = user.updateProfile(
         updateData.name,
+        updateData.firstLastName,
+        updateData.secondLastName,
         updateData.timezone,
-        updateData.profilePicture
-      );      const savedUser = await this.userRepository.update(updatedUser);
-      
+      );
+      const savedUser = await this.userRepository.update(updatedUser);
+
       const userProfileDto = UserMapper.toProfileResponse(savedUser);
       return Result.ok(userProfileDto);
     } catch (error) {

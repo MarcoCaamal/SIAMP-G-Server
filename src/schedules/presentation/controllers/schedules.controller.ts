@@ -50,7 +50,7 @@ import { ScheduleMapper } from '../../infrastructure/mappers/schedule.mapper';
 @ApiTags('Schedules')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller('schedules')
+@Controller('api/schedules')
 export class SchedulesController {
   constructor(
     private readonly createScheduleUseCase: CreateScheduleUseCase,

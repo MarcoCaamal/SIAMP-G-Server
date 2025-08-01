@@ -3,6 +3,8 @@ import { AppModule } from './app.module';
 import { Transport } from '@nestjs/microservices/enums/transport.enum';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 import { 
   DeviceSuccessResponse, 
   DeviceErrorResponse, 
@@ -19,8 +21,13 @@ async function bootstrap() {
   console.log('Iniciando aplicación SIAMP-G...');
   
   // Crear una aplicación HTTP primero
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: ['error', 'warn', 'log', 'debug', 'verbose'], // Habilitar todos los niveles de log
+  });
+
+  // Configurar servicio de archivos estáticos
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads/',
   });
 
   // Habilitar CORS para solicitudes desde el frontend

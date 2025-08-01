@@ -3,21 +3,15 @@ import { Result } from '../../../shared/result/result';
 import { IUserRepository, USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
 import { ProfilePictureService } from '../services/profile-picture.service';
 
-export interface UploadProfilePictureResponse {
-  fileName: string;
-  publicUrl: string;
-  message: string;
-}
-
 @Injectable()
-export class UploadProfilePictureUseCase {
+export class DeleteProfilePictureUseCase2 {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly userRepository: IUserRepository,
     private readonly profilePictureService: ProfilePictureService,
   ) {}
 
-  async execute(userId: string, file: Express.Multer.File): Promise<Result<UploadProfilePictureResponse>> {
+  async execute(userId: string): Promise<Result<{ message: string }>> {
     try {
       // Buscar el usuario
       const user = await this.userRepository.findById(userId);
@@ -29,40 +23,37 @@ export class UploadProfilePictureUseCase {
         });
       }
 
-      // Si el usuario ya tiene una foto de perfil, eliminarla
-      if (user.profilePicture) {
-        await this.profilePictureService.deleteProfilePicture(user.profilePicture);
+      // Verificar si tiene foto de perfil
+      if (!user.profilePicture) {
+        return Result.ok({
+          message: 'El usuario no tiene foto de perfil'
+        });
       }
 
-      // Guardar la nueva foto
-      const fileName = await this.profilePictureService.saveProfilePicture(file);
-      
-      // Actualizar el usuario en la base de datos
+      // Eliminar archivo del disco
+      await this.profilePictureService.deleteProfilePicture(user.profilePicture);
+
+      // Actualizar usuario (quitar referencia a la foto)
       const updatedUser = user.updateProfile(
         undefined, 
         undefined, 
         undefined, 
         undefined, 
-        fileName
+        '' // Vaciar el campo profilePicture
       );
       
       await this.userRepository.update(updatedUser);
 
-      // Obtener la URL pública
-      const publicUrl = this.profilePictureService.getPublicUrl(fileName);
-
       return Result.ok({
-        fileName,
-        publicUrl,
-        message: 'Foto de perfil actualizada exitosamente'
+        message: 'Foto de perfil eliminada exitosamente'
       });
 
     } catch (error) {
-      console.error('Error uploading profile picture:', error);
+      console.error('Error deleting profile picture:', error);
       
       return Result.fail({
-        code: 'UPLOAD_ERROR',
-        message: error instanceof Error ? error.message : 'Error interno del servidor',
+        code: 'INTERNAL_ERROR',
+        message: 'Error interno del servidor',
         statusCode: 500
       });
     }
