@@ -35,7 +35,7 @@ RUN mkdir -p /app/uploads && \
     mkdir -p /app/uploads/profile-pictures && \
     mkdir -p /app/uploads/attachments && \
     chown -R node:node /app/uploads && \
-    chmod -R 755 /app/uploads
+    chmod -R 755 /app/uploads /app/uploads/profile-pictures /app/uploads/attachments
 
 # Production stage
 FROM base AS production
