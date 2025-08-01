@@ -4,6 +4,8 @@ FROM node:alpine AS base
 # Set working directory
 WORKDIR /app
 
+RUN chown -R node.node /app
+
 RUN mkdir -p /app/uploads && \
     mkdir -p /app/uploads/profile-pictures && \
     mkdir -p /app/uploads/attachments && \
@@ -24,6 +26,8 @@ RUN npm ci --verbose || npm install --verbose
 COPY . .
 EXPOSE 3000
 CMD ["npm", "run", "start:debug"]
+
+RUN chown -R node.node /app
 
 # Build stage
 FROM base AS build
