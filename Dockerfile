@@ -31,6 +31,12 @@ RUN npm ci --verbose || npm install --verbose
 COPY . .
 RUN npm run build
 
+RUN mkdir -p /app/uploads && \
+    mkdir -p /app/uploads/profile-pictures && \
+    mkdir -p /app/uploads/attachments && \
+    chown -R node:node /app/uploads && \
+    chmod -R 755 /app/uploads
+
 # Production stage
 FROM base AS production
 COPY --from=build /app/dist ./dist
